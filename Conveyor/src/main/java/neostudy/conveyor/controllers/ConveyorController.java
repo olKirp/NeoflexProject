@@ -1,5 +1,6 @@
 package neostudy.conveyor.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import neostudy.conveyor.dto.LoanApplicationRequestDTO;
 import neostudy.conveyor.dto.LoanOfferDTO;
@@ -21,10 +22,10 @@ public class ConveyorController {
         this.conveyorService = conveyorService;
     }
 
+    @Operation(summary= "Gets loan offers", description = "If request is valid returns four offers, otherwise returns empty list")
     @PostMapping("/conveyor/offers")
     public List<LoanOfferDTO> createLoanOffers(@Valid @RequestBody LoanApplicationRequestDTO loanRequest) {
         List<LoanOfferDTO> offers = conveyorService.createLoanOffers(loanRequest);
         return offers;
     }
-
 }

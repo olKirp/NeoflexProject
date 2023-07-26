@@ -15,8 +15,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class LoanApplicationRequestDTO {
 
+    @NotNull
     private BigDecimal amount;
 
+    @NotNull
     private Integer term;
 
     @Size(min = 2, max = 30)
@@ -34,13 +36,18 @@ public class LoanApplicationRequestDTO {
     @NotNull
     private String middleName;
 
+    @Pattern(regexp = "[A-Za-z0-9_-]+@[A-Za-z0-9_-]+\\.[A-Za-z.]+")
+    @NotNull
     private String email;
 
+    @NotNull
     private LocalDate birthdate;
 
     @Pattern(regexp = "\\d{4}")
+    @NotNull
     private String passportSeries;
 
     @Pattern(regexp = "\\d{6}")
+    @NotNull
     private String passportNumber;
 }

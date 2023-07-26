@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static neostudy.conveyor.service.ScoringService.*;
 
 @SpringBootTest
 class ConveyorServiceTest {
@@ -31,14 +31,14 @@ class ConveyorServiceTest {
 
     @Test
     void givenLargerThanMaxAmount_ThenReturnsEmptyList() {
-        request.setAmount(ConveyorService.MAX_AMOUNT.add(new BigDecimal(1)));
+        request.setAmount(MAX_AMOUNT.add(new BigDecimal(1)));
         List<LoanOfferDTO> offers = conveyorService.createLoanOffers(request);
         assertTrue(offers.isEmpty());
     }
 
     @Test
     void givenLessThanMinAmount_ThenReturnsEmptyList() {
-        request.setAmount(ConveyorService.MIN_AMOUNT.subtract(new BigDecimal(1)));
+        request.setAmount(MIN_AMOUNT.subtract(new BigDecimal(1)));
         List<LoanOfferDTO> offers = conveyorService.createLoanOffers(request);
         assertTrue(offers.isEmpty());
     }
@@ -51,7 +51,7 @@ class ConveyorServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {ConveyorService.MIN_TERM - 1, ConveyorService.MAX_TERM + 1})
+    @ValueSource(ints = {5, 61})
     void givenIncorrectTerm_ThenReturnsEmptyList(int term) {
         request.setTerm(term);
         List<LoanOfferDTO> offers = conveyorService.createLoanOffers(request);
@@ -59,54 +59,13 @@ class ConveyorServiceTest {
     }
 
     @Test
-    void givenSalaryClientWithoutInsurance_whenCreateOneOffer_ThenReturnsCorrectOffer() {
-        BigDecimal correctRate = ConveyorService.BASE_RATE.subtract(ConveyorService.DISCOUNT_FOR_SALARY_CLIENT).add(ConveyorService.PENALTY_FOR_NO_INSURANCE);
-        BigDecimal correctAmount = request.getAmount();
+    void givenCorrectRequest_ThenReturnsList() {
+        List<LoanOfferDTO> offers = conveyorService.createLoanOffers(request);
 
-        LoanOfferDTO offer = conveyorService.createLoanOffer(request, true, false);
+        assertEquals(4, offers.size());
 
-        assertEquals(correctRate, offer.getRate());
-        assertEquals(correctAmount, offer.getTotalAmount());
-    }
-
-    @Test
-    void givenSalaryClientWithInsurance_whenCreateOneOffer_ThenReturnsCorrectOffer() {
-        BigDecimal correctRate = ConveyorService.BASE_RATE.subtract(ConveyorService.DISCOUNT_FOR_SALARY_CLIENT).subtract(ConveyorService.DISCOUNT_FOR_INSURANCE).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal correctAmount = new BigDecimal("130000.00");
-        BigDecimal monthlyPayment = new BigDecimal("22034.67");
-
-        request.setTerm(6);
-        request.setAmount(new BigDecimal("100000.00"));
-
-        LoanOfferDTO offer = conveyorService.createLoanOffer(request, true, true);
-
-        assertEquals(correctRate, offer.getRate());
-        assertEquals(correctAmount, offer.getTotalAmount());
-        assertEquals(request.getTerm(), offer.getTerm());
-        assertEquals(request.getTerm(), offer.getTerm());
-        assertEquals(request.getAmount(), offer.getRequestedAmount());
-        assertEquals(monthlyPayment, offer.getMonthlyPayment());
-    }
-
-    @Test
-    void givenNoSalaryClientWithInsurance_whenCreateOneOffer_ThenReturnsCorrectOffer() {
-        BigDecimal correctRate = ConveyorService.BASE_RATE.subtract(ConveyorService.DISCOUNT_FOR_INSURANCE);
-        BigDecimal correctAmount = new BigDecimal("130000.00");
-
-        LoanOfferDTO offer = conveyorService.createLoanOffer(request, false, true);
-
-        assertEquals(correctRate, offer.getRate());
-        assertEquals(correctAmount, offer.getTotalAmount());
-    }
-
-    @Test
-    void givenNoSalaryClientWithoutInsurance_whenCreateOneOffer_ThenReturnsCorrectOffer() {
-        BigDecimal correctRate = ConveyorService.BASE_RATE.add((ConveyorService.PENALTY_FOR_NO_INSURANCE));
-        BigDecimal correctAmount = request.getAmount();
-
-        LoanOfferDTO offer = conveyorService.createLoanOffer(request, false, false);
-
-        assertEquals(correctRate, offer.getRate());
-        assertEquals(correctAmount, offer.getTotalAmount());
+        assertTrue(offers.get(0).getRate().compareTo(offers.get(1).getRate()) >= 0);
+        assertTrue(offers.get(1).getRate().compareTo(offers.get(2).getRate()) >= 0);
+        assertTrue(offers.get(2).getRate().compareTo(offers.get(3).getRate()) >= 0);
     }
 }

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
@@ -43,7 +44,7 @@ public class LoanApplicationRequestValidationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"Name", "Na", "ThirtyCharactersNameForTesting"})
+    @ValueSource(strings = {"Name", "Na", "MaximumLengthNameNameNameNameE"})
     public void givenCorrectName_thenReturnNoViolations(String name) {
         request.setFirstName(name);
         Set<ConstraintViolation<LoanApplicationRequestDTO>> violations = validator.validate(request);
@@ -52,6 +53,7 @@ public class LoanApplicationRequestValidationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"", "   ", "a", "LongerThenMaximumLengthNameName", "Вася", "Name1", "Name!", "name"})
+    @NullAndEmptySource
     public void givenIncorrectName_thenReturnViolation(String name) {
         request.setFirstName(name);
         Set<ConstraintViolation<LoanApplicationRequestDTO>> violations = validator.validate(request);
@@ -67,6 +69,7 @@ public class LoanApplicationRequestValidationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"", "   ", "abcdef", "12345", "1234567"})
+    @NullAndEmptySource
     public void givenIncorrectPassportNumber_thenReturnViolation(String passportNumber) {
         request.setPassportNumber(passportNumber);
         Set<ConstraintViolation<LoanApplicationRequestDTO>> violations = validator.validate(request);
@@ -82,10 +85,27 @@ public class LoanApplicationRequestValidationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"", "   ", "abcd", "123", "12345"})
+    @NullAndEmptySource
     public void givenIncorrectPassportSeries_thenReturnViolation(String passportSeries) {
         request.setPassportSeries(passportSeries);
         Set<ConstraintViolation<LoanApplicationRequestDTO>> violations = validator.validate(request);
         assertFalse(violations.isEmpty());
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"", "   ", "abcd", "abcd@", "abcd@gg", "abcd@gg."})
+    @NullAndEmptySource
+    public void givenIncorrectEmail_thenReturnViolation(String email) {
+        request.setEmail(email);
+        Set<ConstraintViolation<LoanApplicationRequestDTO>> violations = validator.validate(request);
+        assertFalse(violations.isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"TestMail@mail.co.in", "Test-Mail_mail@mail-mail.ru"})//@mail.ru
+    public void givenCorrectEmail_thenReturnNoViolation(String email) {
+        request.setEmail(email);
+        Set<ConstraintViolation<LoanApplicationRequestDTO>> violations = validator.validate(request);
+        assertTrue(violations.isEmpty());
+    }
 }
