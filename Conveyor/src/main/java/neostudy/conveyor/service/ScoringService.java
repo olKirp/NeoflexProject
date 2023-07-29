@@ -1,12 +1,19 @@
 package neostudy.conveyor.service;
 
+import neostudy.conveyor.dto.CreditDTO;
+import neostudy.conveyor.dto.EmploymentDTO;
 import neostudy.conveyor.dto.PaymentScheduleElement;
+import neostudy.conveyor.dto.ScoringDataDTO;
+import neostudy.conveyor.dto.enums.EmploymentStatus;
+import neostudy.conveyor.dto.enums.Gender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.Period;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,6 +32,16 @@ public class ScoringService {
     public static final BigDecimal DISCOUNT_FOR_INSURANCE;
     public static final BigDecimal PENALTY_FOR_NO_INSURANCE;
 
+    private static final BigDecimal MAX_SALARIES_NUM = new BigDecimal("20.00");
+
+    private final Logger logger = LoggerFactory.getLogger(ScoringService.class);
+
+    private final PrescoringService prescoringService;
+
+    @Autowired
+    public ScoringService(PrescoringService prescoringService) {
+        this.prescoringService = prescoringService;
+    }
 
     static {
         BigDecimal penaltyForNoInsurance;
@@ -68,51 +85,125 @@ public class ScoringService {
         MIN_AMOUNT = minAmount;
     }
 
+    public CreditDTO createCredit(ScoringDataDTO scoringData) {
+        logger.info("Creating credit for request " + scoringData + " started");
 
-    public List<PaymentScheduleElement> createPaymentSchedule(BigDecimal amount, BigDecimal rate, int term, LocalDate paymentDate) {
-        List<PaymentScheduleElement> paymentSchedule = new ArrayList<>();
-        BigDecimal monthlyRate = rate.divide(new BigDecimal("1200.00"), 10, RoundingMode.HALF_UP);
-        BigDecimal totalPayment = countMonthlyPayment(amount, rate, term);
-        BigDecimal interestPayment;
-        BigDecimal debtPayment;
-        for (int i = 1;amount.compareTo(new BigDecimal("0.00")) > 0; i++) {
-            if (amount.compareTo(totalPayment) <= 0) {
-                interestPayment = totalPayment.subtract(amount);
-                amount = new BigDecimal("0.00");
-            } else {
-                interestPayment = amount.multiply(monthlyRate);
-                amount = amount.subtract(totalPayment.subtract(interestPayment));
+        if (!prescoringService.isAmountValid(scoringData.getAmount()) ||
+                !prescoringService.isTermValid(scoringData.getTerm()) ||
+                !isBirthdateValid(scoringData.getBirthdate()) ||
+                !isEmploymentStatusValid(scoringData.getEmployment()) ||
+                !isAmountValid(scoringData.getAmount(), scoringData.getEmployment().getSalary())) {
+            logger.info("Scoring data is not valid, empty creditDTO will be return");
+            return new CreditDTO();
+        }
+
+        CreditDTO credit = new CreditDTO();
+        BigDecimal rate = countRate(scoringData);
+        BigDecimal monthlyPayment = LoanCalculator.countMonthlyPayment(scoringData.getAmount(), rate, scoringData.getTerm());
+        List<PaymentScheduleElement> paymentSchedule = LoanCalculator.createPaymentSchedule(scoringData.getAmount(), rate, scoringData.getTerm(), LocalDate.now().plusMonths(1));
+
+        credit.setRate(rate);
+        credit.setMonthlyPayment(monthlyPayment);
+        credit.setPaymentSchedule(paymentSchedule);
+
+        return credit;
+    }
+
+    private boolean isAmountValid(BigDecimal amount, BigDecimal salary) {
+        BigDecimal twentySalaries = salary.multiply(MAX_SALARIES_NUM);
+        if (amount.compareTo(twentySalaries) > 0) {
+            return false;
+        }
+        return true;
+    }
+
+
+    public BigDecimal countRate(ScoringDataDTO scoringData) {
+        BigDecimal rate = new BigDecimal(BASE_RATE.toString());
+
+        rate = prescoringService.calculateRate(scoringData.getIsSalaryClient(), scoringData.getIsSalaryClient(), rate);
+        rate = countRateForEmployment(scoringData.getEmployment(), rate);
+        rate = countRateForBirthdateAndGender(scoringData, rate);
+        rate = countRateForMaritalStatus(scoringData, rate);
+
+        return rate;
+    }
+
+    public BigDecimal countRateForBirthdateAndGender (ScoringDataDTO scoringData, BigDecimal rate) {
+        if (scoringData.getGender() == Gender.UNSPECIFIED) {
+            rate = rate.add(new BigDecimal("3.00"));
+            return rate;
+        }
+
+        int age = Period.between(scoringData.getBirthdate(), LocalDate.now()).getYears();
+
+        if (scoringData.getGender() == Gender.FEMALE) {
+            if (age >= 35 && age <= 60) {
+                rate = rate.subtract(new BigDecimal("3.00"));
             }
-            debtPayment = totalPayment.subtract(interestPayment);
-
-            PaymentScheduleElement paymentScheduleElement = new PaymentScheduleElement();
-            paymentScheduleElement.setInterestPayment(interestPayment.setScale(2, RoundingMode.HALF_UP));
-            paymentScheduleElement.setRemainingDebt(amount.setScale(2, RoundingMode.HALF_UP));
-            paymentScheduleElement.setDebtPayment(debtPayment.setScale(2, RoundingMode.HALF_UP));
-            paymentScheduleElement.setTotalPayment(totalPayment.setScale(2, RoundingMode.HALF_UP));
-            paymentScheduleElement.setNumber(i);
-            paymentScheduleElement.setDate(paymentDate);
-
-            paymentSchedule.add(paymentScheduleElement);
-            paymentDate = paymentDate.plusMonths(1);
+        } else if (scoringData.getGender() == Gender.MALE) {
+            if (age >= 30 && age <= 55) {
+                rate = rate.subtract(new BigDecimal("3.00"));
+            }
         }
-
-        return paymentSchedule;
+        return rate;
     }
 
-    public BigDecimal countMonthlyPayment(BigDecimal amount, BigDecimal rate, int term) {
-        BigDecimal monthlyRate = rate.divide(new BigDecimal("1200.00"), 10, RoundingMode.HALF_UP);
-        BigDecimal monthlyRateToThePowerOfTerm = monthlyRate.add(new BigDecimal("1.00")).pow(term).setScale(10, RoundingMode.HALF_UP);
-        BigDecimal annuity = monthlyRate.multiply(monthlyRateToThePowerOfTerm).divide(monthlyRateToThePowerOfTerm.subtract(new BigDecimal("1.00")), 10, RoundingMode.HALF_UP);
-        return annuity.multiply(amount).setScale(2, RoundingMode.HALF_UP);
+    public BigDecimal countRateForMaritalStatus(ScoringDataDTO scoringData, BigDecimal rate) {
+        switch (scoringData.getMaritalStatus()) {
+            case MARRIED:
+                rate = rate.subtract(new BigDecimal("3.00"));
+                break;
+            case DIVORCED:
+                rate = rate.add(new BigDecimal("1.00"));
+                break;
+        }
+
+        if (scoringData.getDependentAmount() > 1) {
+            rate = rate.add(new BigDecimal("1.00"));
+        }
+        return rate;
     }
 
-    public BigDecimal getTotalAmountOfInterest(List<PaymentScheduleElement> paymentSchedule) {
-        BigDecimal sum = new BigDecimal("0.00");
-        for (PaymentScheduleElement paymentScheduleElement : paymentSchedule) {
-            sum = sum.add(paymentScheduleElement.getInterestPayment());
+    public BigDecimal countRateForEmployment(EmploymentDTO employmentDTO, BigDecimal rate) {
+        switch (employmentDTO.getEmploymentStatus()) {
+            case SELF_EMPLOYED:
+                rate = rate.add(new BigDecimal("1.00"));
+                break;
+            case BUSINESSMAN:
+                rate = rate.add(new BigDecimal("3.00"));
         }
-        return sum;
+        switch (employmentDTO.getPosition()) {
+            case MIDDLE_MANAGER:
+                rate = rate.subtract(new BigDecimal("2.00"));
+                break;
+            case TOP_MANAGER:
+                rate = rate.subtract(new BigDecimal("4.00"));
+                break;
+        }
+        return rate;
+    }
+
+    public boolean isEmploymentStatusValid(EmploymentDTO employmentDTO) {
+        if (employmentDTO.getEmploymentStatus() == EmploymentStatus.UNEMPLOYED) {
+            logger.info("Loan request is not valid, user is unemployed");
+            return false;
+        }
+
+        if (employmentDTO.getWorkExperienceTotal() < 12 || employmentDTO.getWorkExperienceCurrent() < 3) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isBirthdateValid(LocalDate birthdate) {
+        if (Period.between(birthdate, LocalDate.now()).getYears() < 20 ||
+                Period.between(birthdate, LocalDate.now()).getYears() > 60) {
+            logger.info("Loan request is not valid, user younger than 20 or elder than 60");
+            return false;
+        }
+        return true;
     }
 
 }
