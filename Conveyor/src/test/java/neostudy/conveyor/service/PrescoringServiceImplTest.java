@@ -162,4 +162,12 @@ class PrescoringServiceImplTest {
         assertEquals(isSalaryClient, offer.getIsSalaryClient());
         assertEquals(isInsurance, offer.getIsInsuranceEnabled());
     }
+
+    @Test
+    void givenNullScoringDataDTO_ThanThrowException() {
+        String correctMsg = "LoanApplicationRequestDTO is null";
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> prescoringService.createLoanOffers(null));
+        assertEquals(correctMsg, exception.getMessage());
+    }
 }

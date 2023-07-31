@@ -114,6 +114,14 @@ class ScoringServiceImplTest {
     }
 
     @Test
+    void givenNullScoringDataDTO_ThanThrowException() {
+        String correctMsg = "ScoringDataDTO is null";
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> scoringService.createCredit(null));
+        assertEquals(correctMsg, exception.getMessage());
+    }
+
+    @Test
     void givenManagerPosition_ThanRateDecrease() {
         employmentDTO.setPosition(Position.MIDDLE_MANAGER);
         BigDecimal rate = scoringService.createCredit(scoringDataDTO).getRate();

@@ -1,5 +1,6 @@
 package neostudy.conveyor.service;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import neostudy.conveyor.dto.CreditDTO;
@@ -10,6 +11,7 @@ import neostudy.conveyor.dto.enums.EmploymentStatus;
 import neostudy.conveyor.dto.enums.Gender;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -20,6 +22,7 @@ import java.util.Optional;
 
 @Log4j2
 @Service
+@Validated
 @RequiredArgsConstructor
 public class ScoringServiceImpl implements ScoringService {
 
@@ -30,11 +33,9 @@ public class ScoringServiceImpl implements ScoringService {
     private final Constants constants;
     
     public CreditDTO createCredit(ScoringDataDTO scoringData) {
-        log.info("Creating credit for request " + scoringData + " started");
-
         validateLoanRequest(scoringData);
 
-        BigDecimal amount = loanCalculatorService.getAmountWithInsurance(scoringData.getIsInsuranceEnabled(), scoringData.getAmount());
+        BigDecimal amount = loanCalculatorService.calculateAmountWithInsurance(scoringData.getIsInsuranceEnabled(), scoringData.getAmount());
         BigDecimal rate = calculateRate(scoringData);
         BigDecimal monthlyPayment = loanCalculatorService.calculateMonthlyPayment(amount, rate, scoringData.getTerm());
         List<PaymentScheduleElement> paymentSchedule = loanCalculatorService.createPaymentSchedule(amount, rate, scoringData.getTerm(), LocalDate.now().plusMonths(1));
@@ -47,11 +48,12 @@ public class ScoringServiceImpl implements ScoringService {
                 .rate(rate)
                 .monthlyPayment(monthlyPayment)
                 .paymentSchedule(paymentSchedule)
-                .psk(loanCalculatorService.getPSK(paymentSchedule, amount, scoringData.getTerm()))
+                .psk(loanCalculatorService.calculatePSK(paymentSchedule, amount, scoringData.getTerm()))
                 .build();
     }
 
     private void validateLoanRequest(ScoringDataDTO scoringData) {
+        Assert.notNull(scoringData, "ScoringDataDTO is null");
         Assert.isTrue(isAmountValid(scoringData.getAmount(), scoringData.getEmployment().getSalary()), "Requested amount less than " + constants.getMinAmount() + " or bigger than " + constants.getMaxAmount() + " or twenty salaries");
         Assert.isTrue(prescoringService.isTermValid(scoringData.getTerm()), "Term longer than " + constants.getMaxTerm() + " or shorter than " + constants.getMinTerm());
         Assert.isTrue(isBirthdateValid(scoringData.getBirthdate()), "Loan request is not valid, user younger than 20 or elder than 60");
@@ -72,12 +74,15 @@ public class ScoringServiceImpl implements ScoringService {
                 .get();
 
         if (rate.compareTo(constants.getMinimalRate()) < 0) {
+            log.info("Rate is less than minimal rate. Minimal rate was set: " + constants.getMinimalRate());
             return constants.getMinimalRate();
         }
         return rate.setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calculateRateForBirthdateAndGender(ScoringDataDTO scoringData, BigDecimal rate) {
+        log.info("Calculated rate for birthdate and gender. Gender: " + scoringData.getGender() + ", birthdate=" + scoringData.getBirthdate() + ". Initial rate: " + rate);
+
         if (scoringData.getGender() == Gender.UNSPECIFIED) {
             return rate.add(new BigDecimal("3.00"));
         }
@@ -89,22 +94,28 @@ public class ScoringServiceImpl implements ScoringService {
         } else if (scoringData.getGender() == Gender.MALE && age >= 30 && age <= 55) {
             rate = rate.subtract(new BigDecimal("3.00"));
         }
+        log.info("Calculated rate: " + rate);
         return rate;
     }
 
     private BigDecimal calculateRateForMaritalStatus(ScoringDataDTO scoringData, BigDecimal rate) {
+        log.info("Calculated rate for marital status: " + scoringData.getMaritalStatus() + ", dependents amount=" + scoringData.getDependentAmount() + ". Initial rate: " + rate);
+
         switch (scoringData.getMaritalStatus()) {
             case MARRIED -> rate = rate.subtract(new BigDecimal("3.00"));
             case DIVORCED -> rate = rate.add(BigDecimal.ONE);
         }
 
         if (scoringData.getDependentAmount() > 1) {
-            return rate.add(BigDecimal.ONE);
+            rate = rate.add(BigDecimal.ONE);
         }
+        log.info("Calculated rate: " + rate);
         return rate;
     }
 
     private BigDecimal calculateRateForEmployment(EmploymentDTO employmentDTO, BigDecimal rate) {
+        log.info("Calculated rate for employment: " + employmentDTO + ". Initial rate: " + rate);
+
         switch (employmentDTO.getEmploymentStatus()) {
             case SELF_EMPLOYED -> rate = rate.add(BigDecimal.ONE).setScale(2, RoundingMode.HALF_UP);
             case BUSINESSMAN -> rate = rate.add(new BigDecimal("3.00"));
@@ -113,6 +124,8 @@ public class ScoringServiceImpl implements ScoringService {
             case MIDDLE_MANAGER -> rate = rate.subtract(new BigDecimal("2.00"));
             case TOP_MANAGER -> rate = rate.subtract(new BigDecimal("4.00"));
         }
+
+        log.info("Calculated rate: " + rate);
         return rate;
     }
 

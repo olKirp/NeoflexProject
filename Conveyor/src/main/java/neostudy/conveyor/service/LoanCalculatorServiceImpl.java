@@ -64,14 +64,14 @@ public class LoanCalculatorServiceImpl implements LoanCalculatorService {
        return paymentSchedule.stream().map(PaymentScheduleElement::getTotalPayment).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getPSK(List<PaymentScheduleElement> paymentSchedule, BigDecimal amount, Integer term) {
+    public BigDecimal calculatePSK(List<PaymentScheduleElement> paymentSchedule, BigDecimal amount, Integer term) {
         BigDecimal totalAmount = getTotalAmount(paymentSchedule);
         BigDecimal termInYears = new BigDecimal(term).divide(new BigDecimal("12.00"), 10, RoundingMode.HALF_UP);
 
         return totalAmount.divide(amount, 10, RoundingMode.HALF_UP).subtract(BigDecimal.ONE).divide(termInYears, 10, RoundingMode.HALF_UP).multiply(new BigDecimal("100.00")).setScale(2, RoundingMode.HALF_UP);
     }
 
-    public BigDecimal getAmountWithInsurance(boolean isInsurance, BigDecimal amount) {
+    public BigDecimal calculateAmountWithInsurance(boolean isInsurance, BigDecimal amount) {
         if (isInsurance) {
             return amount.add(getInsurancePrice(amount));
         } else {

@@ -12,7 +12,7 @@ public interface LoanCalculatorService {
 
     BigDecimal calculateMonthlyPayment(BigDecimal amount, BigDecimal rate, int term);
 
-    BigDecimal getPSK(List<PaymentScheduleElement> paymentSchedule, BigDecimal amount, Integer term);
+    BigDecimal calculatePSK(List<PaymentScheduleElement> paymentSchedule, BigDecimal amount, Integer term);
 
-    BigDecimal getAmountWithInsurance(boolean isInsurance, BigDecimal amount);
+    BigDecimal calculateAmountWithInsurance(boolean isInsurance, BigDecimal amount);
 }

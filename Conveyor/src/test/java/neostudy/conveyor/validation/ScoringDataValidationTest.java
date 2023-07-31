@@ -6,6 +6,8 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import neostudy.conveyor.dto.EmploymentDTO;
 import neostudy.conveyor.dto.ScoringDataDTO;
+import neostudy.conveyor.dto.enums.Gender;
+import neostudy.conveyor.dto.enums.MaritalStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +65,8 @@ public class ScoringDataValidationTest {
         scoringDataDTO.setEmployment(employmentDTO);
         scoringDataDTO.setAmount(new BigDecimal("100000.00"));
         scoringDataDTO.setTerm(6);
+        scoringDataDTO.setGender(Gender.FEMALE);
+        scoringDataDTO.setMaritalStatus(MaritalStatus.SINGLE);
     }
 
 

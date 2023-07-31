@@ -44,14 +44,14 @@ class LoanCalculatorServiceImplTest {
         int term = 7;
 
         List<PaymentScheduleElement> paymentSchedule = loanCalculatorService.createPaymentSchedule(amount, rate, term, LocalDate.now());
-        assertEquals(new BigDecimal("2.87"), loanCalculatorService.getPSK(paymentSchedule, amount, term));
+        assertEquals(new BigDecimal("2.87"), loanCalculatorService.calculatePSK(paymentSchedule, amount, term));
 
         amount = new BigDecimal("4500000.00");
         rate = new BigDecimal("11.50");
         term = 24;
 
         paymentSchedule = loanCalculatorService.createPaymentSchedule(amount, rate, term, LocalDate.now());
-        assertEquals(new BigDecimal("6.21"), loanCalculatorService.getPSK(paymentSchedule, amount, term));
+        assertEquals(new BigDecimal("6.21"), loanCalculatorService.calculatePSK(paymentSchedule, amount, term));
     }
 
     @Test
@@ -67,7 +67,7 @@ class LoanCalculatorServiceImplTest {
     void getAmountWithInsurance() {
         BigDecimal amount = new BigDecimal("100000.00");
 
-        assertEquals(new BigDecimal("130000.00"), loanCalculatorService.getAmountWithInsurance(true, amount));
-        assertEquals(new BigDecimal("100000.00"), loanCalculatorService.getAmountWithInsurance(false, amount));
+        assertEquals(new BigDecimal("130000.00"), loanCalculatorService.calculateAmountWithInsurance(true, amount));
+        assertEquals(new BigDecimal("100000.00"), loanCalculatorService.calculateAmountWithInsurance(false, amount));
     }
 }

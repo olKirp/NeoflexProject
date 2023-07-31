@@ -3,6 +3,8 @@ package neostudy.conveyor.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import neostudy.conveyor.dto.LoanApplicationRequestDTO;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ConveyorController.class)
+@RunWith(MockitoJUnitRunner.class)
 class ConveyorControllerTest {
 
     @Autowired
