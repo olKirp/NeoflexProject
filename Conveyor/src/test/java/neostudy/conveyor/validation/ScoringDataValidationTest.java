@@ -71,6 +71,7 @@ public class ScoringDataValidationTest {
     void givenIncorrectAccount_thenReturnViolations(String account) {
         scoringDataDTO.setAccount(account);
         Set<ConstraintViolation<ScoringDataDTO>> violations = validator.validate(scoringDataDTO);
+
         assertFalse(violations.isEmpty());
     }
 
@@ -79,12 +80,14 @@ public class ScoringDataValidationTest {
     void givenCorrectAccount_thenReturnNoViolations() {
         scoringDataDTO.setAccount("0123456789");
         Set<ConstraintViolation<ScoringDataDTO>> violations = validator.validate(scoringDataDTO);
+
         assertTrue(violations.isEmpty());
     }
 
     @Test
     void givenCorrectScoringDataDTO_thenReturnNoViolations() {
         Set<ConstraintViolation<ScoringDataDTO>> violations = validator.validate(scoringDataDTO);
+
         assertTrue(violations.isEmpty());
     }
 
@@ -95,7 +98,6 @@ public class ScoringDataValidationTest {
         employmentDTO.setEmployerINN(INN);
         Set<ConstraintViolation<EmploymentDTO>> violations = validator.validate(employmentDTO);
 
-        violations.forEach(System.out::println);
         assertFalse(violations.isEmpty());
     }
 
@@ -103,7 +105,7 @@ public class ScoringDataValidationTest {
     void givenIncorrectSalary_thenReturnViolations() {
         employmentDTO.setSalary(new BigDecimal("-1.00"));
         Set<ConstraintViolation<EmploymentDTO>> violations = validator.validate(employmentDTO);
-        violations.forEach(System.out::println);
+
         assertFalse(violations.isEmpty());
     }
 
@@ -111,15 +113,12 @@ public class ScoringDataValidationTest {
     void givenIncorrectExperience_thenReturnViolations() {
         employmentDTO.setWorkExperienceCurrent(-1);
         Set<ConstraintViolation<EmploymentDTO>> violations = validator.validate(employmentDTO);
-        violations.forEach(System.out::println);
-        assertFalse(violations.isEmpty());
 
+        assertFalse(violations.isEmpty());
         employmentDTO.setWorkExperienceCurrent(1);
         employmentDTO.setWorkExperienceTotal(-1);
         violations = validator.validate(employmentDTO);
-        violations.forEach(System.out::println);
         assertFalse(violations.isEmpty());
     }
-
 }
 

@@ -14,14 +14,16 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
-import static neostudy.conveyor.service.ScoringService.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class PrescoringServiceTest {
+class PrescoringServiceImplTest {
 
     @Autowired
-    PrescoringService prescoringService;
+    PrescoringServiceImpl prescoringService;
+
+    @Autowired
+    Constants constants;
 
     private static LoanApplicationRequestDTO request;
 
@@ -31,32 +33,35 @@ class PrescoringServiceTest {
     }
 
     @Test
-    void givenLargerThanMaxAmount_ThenReturnsEmptyList() {
-        request.setAmount(MAX_AMOUNT.add(new BigDecimal(1)));
-        List<LoanOfferDTO> offers = prescoringService.createLoanOffers(request);
-        assertTrue(offers.isEmpty());
-    }
+    void givenIncorrectAmount_ThenReturnsEmptyList() {
+        String correctMsg = "Requested amount less than " + constants.getMinAmount() + " or bigger than " + constants.getMaxAmount();
 
-    @Test
-    void givenLessThanMinAmount_ThenReturnsEmptyList() {
-        request.setAmount(MIN_AMOUNT.subtract(new BigDecimal(1)));
-        List<LoanOfferDTO> offers = prescoringService.createLoanOffers(request);
-        assertTrue(offers.isEmpty());
+        request.setAmount(constants.getMaxAmount().add(BigDecimal.ONE));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> prescoringService.createLoanOffers(request));
+        assertEquals(correctMsg, exception.getMessage());
+
+        request.setAmount(constants.getMinAmount().subtract(BigDecimal.ONE));
+        exception = assertThrows(IllegalArgumentException.class, () -> prescoringService.createLoanOffers(request));
+        assertEquals(correctMsg, exception.getMessage());
     }
 
     @Test
     void givenAgeLessThanEighteen_ThenReturnsEmptyList() {
-        request.setBirthdate(LocalDate.now().minusYears(17));
-        List<LoanOfferDTO> offers = prescoringService.createLoanOffers(request);
-        assertTrue(offers.isEmpty());
+        String correctMsg = "User younger than 18";
+
+        request.setBirthdate(LocalDate.of(2010, 1, 1));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> prescoringService.createLoanOffers(request));
+        assertEquals(correctMsg, exception.getMessage());
     }
 
     @ParameterizedTest
     @ValueSource(ints = {5, 61})
     void givenIncorrectTerm_ThenReturnsEmptyList(int term) {
+        String correctMsg = "Term longer than " + constants.getMaxTerm() + " or shorter than " + constants.getMinTerm();
+
         request.setTerm(term);
-        List<LoanOfferDTO> offers = prescoringService.createLoanOffers(request);
-        assertTrue(offers.isEmpty());
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> prescoringService.createLoanOffers(request));
+        assertEquals(correctMsg, exception.getMessage());
     }
 
     @Test
@@ -72,14 +77,16 @@ class PrescoringServiceTest {
 
 
     @Test
-    void givenSalaryClientWithoutInsurance_whenCreateOneOffer_ThenReturnsCorrectOffer() {
+    void givenSalaryClientWithoutInsurance_ThenReturnsCorrectOffer() {
         boolean isSalaryClient = true;
         boolean isInsurance = false;
-        BigDecimal correctRate = BASE_RATE.subtract(DISCOUNT_FOR_SALARY_CLIENT).add(PENALTY_FOR_NO_INSURANCE).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal correctRate = constants.getBaseRate().subtract(constants.getDiscountForSalaryClient()).add(constants.getPenaltyForNoInsurance()).setScale(2, RoundingMode.HALF_UP);
         BigDecimal correctAmount = request.getAmount().setScale(2, RoundingMode.HALF_UP);
         BigDecimal monthlyPayment = new BigDecimal("10487.54");
 
-        LoanOfferDTO offer = prescoringService.createLoanOffer(request, isSalaryClient, isInsurance);
+
+        List<LoanOfferDTO> offers = prescoringService.createLoanOffers(request);
+        LoanOfferDTO offer = offers.get(1);
 
         assertEquals(correctRate, offer.getRate());
         assertEquals(correctAmount, offer.getTotalAmount());
@@ -89,20 +96,20 @@ class PrescoringServiceTest {
         assertEquals(request.getAmount(), offer.getRequestedAmount());
         assertEquals(isSalaryClient, offer.getIsSalaryClient());
         assertEquals(isInsurance, offer.getIsInsuranceEnabled());
-
     }
 
     @Test
-    void givenSalaryClientWithInsurance_whenCreateOneOffer_ThenReturnsCorrectOffer() {
+    void givenSalaryClientWithInsurance_ThenReturnsCorrectOffer() {
         boolean isSalaryClient = true;
         boolean isInsurance = true;
-        BigDecimal correctRate = BASE_RATE.subtract(DISCOUNT_FOR_SALARY_CLIENT).subtract(DISCOUNT_FOR_INSURANCE).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal correctRate = constants.getBaseRate().subtract(constants.getDiscountForSalaryClient()).subtract(constants.getDiscountForInsurance()).setScale(2, RoundingMode.HALF_UP);
         BigDecimal correctAmount = new BigDecimal("130000.00");
         BigDecimal monthlyPayment = new BigDecimal("22034.67");
 
         request.setTerm(6);
 
-        LoanOfferDTO offer = prescoringService.createLoanOffer(request, isSalaryClient, isInsurance);
+        List<LoanOfferDTO> offers = prescoringService.createLoanOffers(request);
+        LoanOfferDTO offer = offers.get(3);
 
         assertEquals(correctRate, offer.getRate());
         assertEquals(correctAmount, offer.getTotalAmount());
@@ -115,14 +122,15 @@ class PrescoringServiceTest {
     }
 
     @Test
-    void givenNoSalaryClientWithInsurance_whenCreateOneOffer_ThenReturnsCorrectOffer() {
+    void givenNoSalaryClientWithInsurance_ThenReturnsCorrectOffer() {
         boolean isSalaryClient = false;
         boolean isInsurance = true;
-        BigDecimal correctRate = BASE_RATE.subtract(DISCOUNT_FOR_INSURANCE).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal correctRate = constants.getBaseRate().subtract(constants.getDiscountForInsurance()).setScale(2, RoundingMode.HALF_UP);
         BigDecimal correctAmount = new BigDecimal("130000.00");
         BigDecimal monthlyPayment = new BigDecimal("13499.65");
 
-        LoanOfferDTO offer = prescoringService.createLoanOffer(request, isSalaryClient, isInsurance);
+        List<LoanOfferDTO> offers = prescoringService.createLoanOffers(request);
+        LoanOfferDTO offer = offers.get(2);
 
         assertEquals(correctRate, offer.getRate());
         assertEquals(correctAmount, offer.getTotalAmount());
@@ -135,14 +143,15 @@ class PrescoringServiceTest {
     }
 
     @Test
-    void givenNoSalaryClientWithoutInsurance_whenCreateOneOffer_ThenReturnsCorrectOffer() {
+    void givenNoSalaryClientWithoutInsurance_ThenReturnsCorrectOffer() {
         boolean isSalaryClient = false;
         boolean isInsurance = false;
-        BigDecimal correctRate = BASE_RATE.add((PENALTY_FOR_NO_INSURANCE)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal correctRate = constants.getBaseRate().add((constants.getPenaltyForNoInsurance())).setScale(2, RoundingMode.HALF_UP);
         BigDecimal correctAmount = request.getAmount().setScale(2, RoundingMode.HALF_UP);
         BigDecimal monthlyPayment = new BigDecimal("10605.46");
 
-        LoanOfferDTO offer = prescoringService.createLoanOffer(request, isSalaryClient, isInsurance);
+        List<LoanOfferDTO> offers = prescoringService.createLoanOffers(request);
+        LoanOfferDTO offer = offers.get(0);
 
         assertEquals(correctRate, offer.getRate());
         assertEquals(correctAmount, offer.getTotalAmount());

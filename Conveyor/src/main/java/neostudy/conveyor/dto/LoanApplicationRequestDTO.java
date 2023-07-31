@@ -1,5 +1,6 @@
 package neostudy.conveyor.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -23,31 +24,31 @@ public class LoanApplicationRequestDTO {
 
     @Size(min = 2, max = 30)
     @Pattern(regexp = "[A-Z][a-zA-Z]*")
-    @NotNull
+    @NotBlank
     private String firstName;
 
     @Size(min = 2, max = 30)
     @Pattern(regexp = "[A-Z][a-zA-Z]*")
-    @NotNull
+    @NotBlank
     private String lastName;
 
     @Size(min = 2, max = 30)
     @Pattern(regexp = "[A-Z][a-zA-Z]*")
-    @NotNull
+    @NotBlank
     private String middleName;
 
     @Pattern(regexp = "[A-Za-z0-9_-]+@[A-Za-z0-9_-]+\\.[A-Za-z.]+")
-    @NotNull
+    @NotBlank
     private String email;
 
     @NotNull
     private LocalDate birthdate;
 
     @Pattern(regexp = "\\d{4}")
-    @NotNull
+    @NotBlank
     private String passportSeries;
 
     @Pattern(regexp = "\\d{6}")
-    @NotNull
+    @NotBlank
     private String passportNumber;
 }

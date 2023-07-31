@@ -23,30 +23,31 @@ public class ScoringDataDTO {
 
     @Size(min = 2, max = 30)
     @Pattern(regexp = "[A-Z][a-zA-Z]*")
-    @NotNull
+    @NotBlank
     private String firstName;
 
     @Size(min = 2, max = 30)
     @Pattern(regexp = "[A-Z][a-zA-Z]*")
-    @NotNull
+    @NotBlank
     private String lastName;
 
     @Size(min = 2, max = 30)
     @Pattern(regexp = "[A-Z][a-zA-Z]*")
-    @NotNull
+    @NotBlank
     private String middleName;
 
+    @NotNull
     private Gender gender;
 
     @NotNull
     private LocalDate birthdate;
 
     @Pattern(regexp = "\\d{4}")
-    @NotNull
+    @NotBlank
     private String passportSeries;
 
     @Pattern(regexp = "\\d{6}")
-    @NotNull
+    @NotBlank
     private String passportNumber;
 
     @NotNull
@@ -55,6 +56,7 @@ public class ScoringDataDTO {
     @NotBlank
     private String passportIssueBranch;
 
+    @NotNull
     private MaritalStatus maritalStatus;
 
     @Min(0)

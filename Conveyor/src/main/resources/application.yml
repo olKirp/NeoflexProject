@@ -1,0 +1,14 @@
+server:
+    port: 8080
+
+minAmount: 10000
+maxAmount: 7000000
+minTerm: 6
+maxTerm: 60
+baseRate: 10
+minimalRate: 2.80
+discountForSalaryClient: 2.5
+discountForInsurance: 1.7
+penaltyForNoInsurance: 3.0
+insuranceCoefficient: 0.30
+maxSalariesNum: 20
