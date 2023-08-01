@@ -59,7 +59,7 @@ public class ScoringDataValidationTest {
         scoringDataDTO.setIsSalaryClient(true);
         scoringDataDTO.setPassportNumber("111111");
         scoringDataDTO.setPassportSeries("1111");
-        scoringDataDTO.setPassportIssueDate(LocalDate.now());
+        scoringDataDTO.setPassportIssueDate(LocalDate.of(2000, 1, 1));
         scoringDataDTO.setPassportIssueBranch("PassportIssueBranch");
         scoringDataDTO.setAccount("0123456789");
         scoringDataDTO.setEmployment(employmentDTO);
@@ -84,7 +84,7 @@ public class ScoringDataValidationTest {
     void givenCorrectAccount_thenReturnNoViolations() {
         scoringDataDTO.setAccount("0123456789");
         Set<ConstraintViolation<ScoringDataDTO>> violations = validator.validate(scoringDataDTO);
-
+        violations.forEach(System.out::println);
         assertTrue(violations.isEmpty());
     }
 
@@ -92,6 +92,7 @@ public class ScoringDataValidationTest {
     void givenCorrectScoringDataDTO_thenReturnNoViolations() {
         Set<ConstraintViolation<ScoringDataDTO>> violations = validator.validate(scoringDataDTO);
 
+        violations.forEach(System.out::println);
         assertTrue(violations.isEmpty());
     }
 

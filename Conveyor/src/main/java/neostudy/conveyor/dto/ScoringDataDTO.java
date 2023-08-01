@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import neostudy.conveyor.dto.enums.Gender;
 import neostudy.conveyor.dto.enums.MaritalStatus;
+import neostudy.conveyor.validation.PastConstraint;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -40,6 +41,7 @@ public class ScoringDataDTO {
     private Gender gender;
 
     @NotNull
+    @PastConstraint
     private LocalDate birthdate;
 
     @Pattern(regexp = "\\d{4}")
@@ -51,6 +53,7 @@ public class ScoringDataDTO {
     private String passportNumber;
 
     @NotNull
+    @PastConstraint
     private LocalDate passportIssueDate;
 
     @NotBlank

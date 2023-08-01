@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import neostudy.conveyor.validation.PastConstraint;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -42,6 +43,7 @@ public class LoanApplicationRequestDTO {
     private String email;
 
     @NotNull
+    @PastConstraint
     private LocalDate birthdate;
 
     @Pattern(regexp = "\\d{4}")
