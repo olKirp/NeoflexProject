@@ -84,7 +84,7 @@ public class ScoringDataValidationTest {
     void givenCorrectAccount_thenReturnNoViolations() {
         scoringDataDTO.setAccount("0123456789");
         Set<ConstraintViolation<ScoringDataDTO>> violations = validator.validate(scoringDataDTO);
-        violations.forEach(System.out::println);
+
         assertTrue(violations.isEmpty());
     }
 
@@ -92,7 +92,6 @@ public class ScoringDataValidationTest {
     void givenCorrectScoringDataDTO_thenReturnNoViolations() {
         Set<ConstraintViolation<ScoringDataDTO>> violations = validator.validate(scoringDataDTO);
 
-        violations.forEach(System.out::println);
         assertTrue(violations.isEmpty());
     }
 
