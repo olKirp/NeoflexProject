@@ -1,6 +1,5 @@
 package neostudy.conveyor.service;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import neostudy.conveyor.dto.CreditDTO;
@@ -140,5 +139,4 @@ public class ScoringServiceImpl implements ScoringService {
         return Period.between(birthdate, LocalDate.now()).getYears() >= 20 &&
                 Period.between(birthdate, LocalDate.now()).getYears() <= 60;
     }
-
 }

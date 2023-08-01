@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @Log4j2
 @ControllerAdvice
-public class ConveyorControllerAdvice {
+public class ConveyorControllerExceptionHandler {
 
     @ExceptionHandler({ IllegalArgumentException.class })
     public ResponseEntity<String> handleException(RuntimeException exception) {

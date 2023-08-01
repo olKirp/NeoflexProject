@@ -16,5 +16,4 @@ public class DateValidator implements
     public boolean isValid(LocalDate contactField, ConstraintValidatorContext cxt) {
         return contactField != null && contactField.isBefore(LocalDate.now());
     }
-
 }

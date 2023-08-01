@@ -47,7 +47,7 @@ class ConveyorControllerTest {
     @Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.standaloneSetup(conveyorController)
-                .setControllerAdvice(new ConveyorControllerAdvice())
+                .setControllerAdvice(new ConveyorControllerExceptionHandler())
                 .build();
     }
 
