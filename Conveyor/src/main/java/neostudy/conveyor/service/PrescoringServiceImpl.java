@@ -3,6 +3,7 @@ package neostudy.conveyor.service;
 import lombok.RequiredArgsConstructor;
 import neostudy.conveyor.dto.LoanApplicationRequestDTO;
 import neostudy.conveyor.dto.LoanOfferDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -22,8 +23,33 @@ public class PrescoringServiceImpl implements PrescoringService {
     private static final Comparator<LoanOfferDTO> offersComparator = Comparator.comparing(LoanOfferDTO::getRate);
 
     private final LoanCalculatorService loanCalculatorService;
-    
-    private final Constants constants;
+
+    @Value("${baseRate}")
+    private BigDecimal baseRate;
+
+    @Value("${minTerm}")
+    private int minTerm;
+
+    @Value("${maxTerm}")
+    private int maxTerm;
+
+    @Value("${minAmount}")
+    private BigDecimal minAmount;
+
+    @Value("${maxAmount}")
+    private BigDecimal maxAmount;
+
+    @Value("${discountForInsurance}")
+    private BigDecimal discountForInsurance;
+
+    @Value("${penaltyForNoInsurance}")
+    private BigDecimal penaltyForNoInsurance;
+
+    @Value("${discountForSalaryClient}")
+    private BigDecimal discountForSalaryClient;
+
+    @Value("${minimalRate}")
+    private BigDecimal minimalRate;
 
     public List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO loanRequest) {
 
@@ -43,13 +69,13 @@ public class PrescoringServiceImpl implements PrescoringService {
 
     private void validateLoanRequest(LoanApplicationRequestDTO loanRequest) {
         Assert.notNull(loanRequest, "LoanApplicationRequestDTO is null");
-        Assert.isTrue(isAmountValid(loanRequest.getAmount()), "Requested amount less than " + constants.getMinAmount() + " or bigger than " + constants.getMaxAmount());
-        Assert.isTrue(isTermValid(loanRequest.getTerm()), "Term longer than " + constants.getMaxTerm() + " or shorter than " + constants.getMinTerm());
+        Assert.isTrue(isAmountValid(loanRequest.getAmount()), "Requested amount less than " + minAmount + " or bigger than " + maxAmount);
+        Assert.isTrue(isTermValid(loanRequest.getTerm()), "Term longer than " + maxTerm + " or shorter than " + minTerm);
         Assert.isTrue(isBirthdateValid(loanRequest.getBirthdate()), "User younger than 18");
     }
 
     private LoanOfferDTO createLoanOffer(LoanApplicationRequestDTO loanRequest, boolean isSalaryClient, boolean isInsurance) {
-        BigDecimal totalRate = calculateRate(isSalaryClient, isInsurance, constants.getBaseRate());
+        BigDecimal totalRate = calculateRate(isSalaryClient, isInsurance, baseRate);
         BigDecimal totalAmount = loanCalculatorService.calculateAmountWithInsurance(isInsurance, loanRequest.getAmount());
         BigDecimal monthlyPayment = loanCalculatorService.calculateMonthlyPayment(totalAmount.setScale(2, RoundingMode.HALF_UP), totalRate.setScale(2, RoundingMode.HALF_UP), loanRequest.getTerm());
 
@@ -67,17 +93,17 @@ public class PrescoringServiceImpl implements PrescoringService {
 
     public BigDecimal calculateRate(boolean isSalaryClient, boolean isInsurance, BigDecimal rate) {
         if (isSalaryClient) {
-            rate = rate.subtract(constants.getDiscountForSalaryClient());
+            rate = rate.subtract(discountForSalaryClient);
         }
 
         if (isInsurance) {
-            rate = rate.subtract(constants.getDiscountForInsurance());
+            rate = rate.subtract(discountForInsurance);
         } else {
-            rate = rate.add(constants.getPenaltyForNoInsurance());
+            rate = rate.add(penaltyForNoInsurance);
         }
 
-        if (rate.compareTo(constants.getMinimalRate()) < 0) {
-            return constants.getMinimalRate();
+        if (rate.compareTo(minimalRate) < 0) {
+            return minimalRate;
         }
 
         return rate.setScale(2, RoundingMode.HALF_UP);
@@ -89,10 +115,10 @@ public class PrescoringServiceImpl implements PrescoringService {
     }
 
     public boolean isAmountValid(BigDecimal amount) {
-        return amount.compareTo(constants.getMinAmount()) >= 0 && amount.compareTo(constants.getMaxAmount()) <= 0;
+        return amount.compareTo(minAmount) >= 0 && amount.compareTo(maxAmount) <= 0;
     }
 
     public boolean isTermValid(Integer term) {
-        return term >= constants.getMinTerm() && term <= constants.getMaxTerm();
+        return term >= minTerm && term <= maxTerm;
     }
 }

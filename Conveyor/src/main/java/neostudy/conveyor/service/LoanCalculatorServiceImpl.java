@@ -2,6 +2,7 @@ package neostudy.conveyor.service;
 
 import lombok.RequiredArgsConstructor;
 import neostudy.conveyor.dto.PaymentScheduleElement;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,7 +15,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LoanCalculatorServiceImpl implements LoanCalculatorService {
 
-    private final Constants constants;
+    private final BigDecimal monthsInYear = new BigDecimal("12.00");
+
+    private final BigDecimal oneHundred = new BigDecimal("100.00");
+
+    @Value("${insuranceCoefficient}")
+    private BigDecimal insurance;
 
     public List<PaymentScheduleElement> createPaymentSchedule(BigDecimal amount, BigDecimal rate, int term, LocalDate paymentDate) {
         List<PaymentScheduleElement> paymentSchedule = new ArrayList<>();
@@ -51,13 +57,14 @@ public class LoanCalculatorServiceImpl implements LoanCalculatorService {
 
     public BigDecimal calculateMonthlyPayment(BigDecimal amount, BigDecimal rate, int term) {
         BigDecimal monthlyRate = calculateMonthlyRate(rate);
-        BigDecimal monthlyRateToThePowerOfTerm = monthlyRate.add(new BigDecimal("1.00")).pow(term).setScale(10, RoundingMode.HALF_UP);
-        BigDecimal annuity = monthlyRate.multiply(monthlyRateToThePowerOfTerm).divide(monthlyRateToThePowerOfTerm.subtract(new BigDecimal("1.00")), 10, RoundingMode.HALF_UP);
+        BigDecimal monthlyRateToThePowerOfTerm = monthlyRate.add(BigDecimal.ONE).pow(term).setScale(10, RoundingMode.HALF_UP);
+        BigDecimal annuity = monthlyRate.multiply(monthlyRateToThePowerOfTerm).divide(monthlyRateToThePowerOfTerm.subtract(BigDecimal.ONE), 10, RoundingMode.HALF_UP);
+
         return annuity.multiply(amount).setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calculateMonthlyRate(BigDecimal rate) {
-        return rate.divide(new BigDecimal("1200.00"), 10, RoundingMode.HALF_UP);
+        return rate.divide(monthsInYear, 10, RoundingMode.HALF_UP).divide(oneHundred, 10, RoundingMode.HALF_UP);
     }
 
     private BigDecimal getTotalAmount(List<PaymentScheduleElement> paymentSchedule) {
@@ -66,9 +73,9 @@ public class LoanCalculatorServiceImpl implements LoanCalculatorService {
 
     public BigDecimal calculatePSK(List<PaymentScheduleElement> paymentSchedule, BigDecimal amount, Integer term) {
         BigDecimal totalAmount = getTotalAmount(paymentSchedule);
-        BigDecimal termInYears = new BigDecimal(term).divide(new BigDecimal("12.00"), 10, RoundingMode.HALF_UP);
+        BigDecimal termInYears = new BigDecimal(term).divide(monthsInYear, 10, RoundingMode.HALF_UP);
 
-        return totalAmount.divide(amount, 10, RoundingMode.HALF_UP).subtract(BigDecimal.ONE).divide(termInYears, 10, RoundingMode.HALF_UP).multiply(new BigDecimal("100.00")).setScale(2, RoundingMode.HALF_UP);
+        return totalAmount.divide(amount, 10, RoundingMode.HALF_UP).subtract(BigDecimal.ONE).divide(termInYears, 10, RoundingMode.HALF_UP).multiply(oneHundred).setScale(2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal calculateAmountWithInsurance(boolean isInsurance, BigDecimal amount) {
@@ -80,6 +87,6 @@ public class LoanCalculatorServiceImpl implements LoanCalculatorService {
     }
 
     private BigDecimal getInsurancePrice(BigDecimal amount) {
-        return amount.multiply(constants.getInsurance()).setScale(2, RoundingMode.HALF_UP);
+        return amount.multiply(insurance).setScale(2, RoundingMode.HALF_UP);
     }
 }

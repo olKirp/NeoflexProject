@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
@@ -24,13 +25,19 @@ class ScoringServiceImplTest {
 
     @Autowired
     ScoringServiceImpl scoringService;
-
-    @Autowired
-    Constants constants;
-
+    
     static ScoringDataDTO scoringDataDTO;
 
     static EmploymentDTO employmentDTO = new EmploymentDTO();
+    
+    @Value("${minAmount}")
+    private BigDecimal minAmount;
+    
+    @Value("${maxAmount}")
+    private BigDecimal maxAmount;
+    
+    @Value("${minimalRate}")
+    private BigDecimal minimalRate;
 
     @BeforeAll
     static void createScoringDataDTO() {
@@ -73,7 +80,7 @@ class ScoringServiceImplTest {
 
     @Test
     void givenIncorrectAmount_ThanThrowException() {
-        String correctMsg = "Requested amount less than " + constants.getMinAmount() + " or bigger than " + constants.getMaxAmount() + " or twenty salaries";
+        String correctMsg = "Requested amount less than " + minAmount + " or bigger than " + maxAmount + " or twenty salaries";
 
         BigDecimal incorrectAmount = scoringDataDTO.getEmployment().getSalary().multiply(new BigDecimal("20.00")).add(new BigDecimal("1.00"));
         scoringDataDTO.setAmount(incorrectAmount);
@@ -81,13 +88,13 @@ class ScoringServiceImplTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> scoringService.createCredit(scoringDataDTO));
         assertEquals(correctMsg, exception.getMessage());
 
-        incorrectAmount = constants.getMinAmount().subtract(BigDecimal.ONE);
+        incorrectAmount = minAmount.subtract(BigDecimal.ONE);
         scoringDataDTO.setAmount(incorrectAmount);
 
         exception = assertThrows(IllegalArgumentException.class, () -> scoringService.createCredit(scoringDataDTO));
         assertEquals(correctMsg, exception.getMessage());
 
-        incorrectAmount = constants.getMaxAmount().add(BigDecimal.ONE);
+        incorrectAmount = maxAmount.add(BigDecimal.ONE);
         scoringDataDTO.setAmount(incorrectAmount);
 
         exception = assertThrows(IllegalArgumentException.class, () -> scoringService.createCredit(scoringDataDTO));
@@ -182,7 +189,6 @@ class ScoringServiceImplTest {
 
     @Test
     void givenRateLessThanMin_ThanReturnMinimalRate() {
-        BigDecimal minimalRate = constants.getMinimalRate();
         scoringDataDTO.setIsSalaryClient(true);
         scoringDataDTO.setIsInsuranceEnabled(true);
         scoringDataDTO.getEmployment().setPosition(Position.TOP_MANAGER);
