@@ -129,7 +129,7 @@ public class ScoringServiceImpl implements ScoringService {
     private BigDecimal calculateRateForBirthdateAndGender(ScoringDataDTO scoringData, BigDecimal rate) {
         log.info("Calculated rate for birthdate and gender. Gender: " + scoringData.getGender() + ", birthdate=" + scoringData.getBirthdate() + ". Initial rate: " + rate);
 
-        if (scoringData.getGender() == Gender.UNSPECIFIED) {
+        if (scoringData.getGender() == Gender.NON_BINARY) {
             return rate.add(rateIncreaseForUnspecifiedGender);
         }
 
@@ -162,10 +162,10 @@ public class ScoringServiceImpl implements ScoringService {
 
         switch (employmentDTO.getEmploymentStatus()) {
             case SELF_EMPLOYED -> rate = rate.add(rateIncreaseForSelfEmployed);
-            case BUSINESSMAN -> rate = rate.add(rateIncreaseForBusinessman);
+            case BUSINESS_OWNER -> rate = rate.add(rateIncreaseForBusinessman);
         }
         switch (employmentDTO.getPosition()) {
-            case MIDDLE_MANAGER -> rate = rate.subtract(discountForMiddleManager);
+            case MID_MANAGER -> rate = rate.subtract(discountForMiddleManager);
             case TOP_MANAGER -> rate = rate.subtract(discountForTopManager);
         }
 

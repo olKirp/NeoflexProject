@@ -60,7 +60,7 @@ class ScoringServiceImplTest {
         scoringDataDTO.setIsInsuranceEnabled(true);
 
         employmentDTO.setSalary(new BigDecimal("50000.00"));
-        employmentDTO.setEmploymentStatus(EmploymentStatus.EMPLOYEE);
+        employmentDTO.setEmploymentStatus(EmploymentStatus.EMPLOYED);
         employmentDTO.setPosition(Position.EMPLOYEE);
         employmentDTO.setWorkExperienceTotal(20);
         employmentDTO.setWorkExperienceCurrent(10);
@@ -109,7 +109,7 @@ class ScoringServiceImplTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> scoringService.createCredit(scoringDataDTO));
         assertEquals(correctMsg, exception.getMessage());
 
-        employmentDTO.setEmploymentStatus(EmploymentStatus.EMPLOYEE);
+        employmentDTO.setEmploymentStatus(EmploymentStatus.EMPLOYED);
         employmentDTO.setWorkExperienceCurrent(1);
         exception = assertThrows(IllegalArgumentException.class, () -> scoringService.createCredit(scoringDataDTO));
         assertEquals(correctMsg, exception.getMessage());
@@ -130,7 +130,7 @@ class ScoringServiceImplTest {
 
     @Test
     void givenManagerPosition_ThanRateDecrease() {
-        employmentDTO.setPosition(Position.MIDDLE_MANAGER);
+        employmentDTO.setPosition(Position.MID_MANAGER);
         BigDecimal rate = scoringService.createCredit(scoringDataDTO).getRate();
         assertEquals(new BigDecimal("6.30"), rate);
 
@@ -145,7 +145,7 @@ class ScoringServiceImplTest {
         BigDecimal rate = scoringService.createCredit(scoringDataDTO).getRate();
         assertEquals(new BigDecimal("9.30"), rate);
 
-        employmentDTO.setEmploymentStatus(EmploymentStatus.BUSINESSMAN);
+        employmentDTO.setEmploymentStatus(EmploymentStatus.BUSINESS_OWNER);
         rate = scoringService.createCredit(scoringDataDTO).getRate();
         assertEquals(new BigDecimal("11.30"), rate);
     }
@@ -161,7 +161,7 @@ class ScoringServiceImplTest {
 
     @Test
     void givenUnspecifiedGender_ThanRateIncrease() {
-        scoringDataDTO.setGender(Gender.UNSPECIFIED);
+        scoringDataDTO.setGender(Gender.NON_BINARY);
 
         BigDecimal rate = scoringService.createCredit(scoringDataDTO).getRate();
         assertEquals(new BigDecimal("11.30"), rate);

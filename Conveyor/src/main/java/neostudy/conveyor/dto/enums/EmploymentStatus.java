@@ -2,7 +2,7 @@ package neostudy.conveyor.dto.enums;
 
 public enum EmploymentStatus {
     UNEMPLOYED,
-    EMPLOYEE,
+    EMPLOYED,
     SELF_EMPLOYED,
-    BUSINESSMAN
+    BUSINESS_OWNER
 }

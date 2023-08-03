@@ -19,30 +19,30 @@ import java.math.BigDecimal;
 public class EmploymentDTO {
 
     @NotNull
-    @Schema(description = "User's employment status", example = "EMPLOYEE")
+    @Schema(description = "User's employment status", type = "string", example = "EMPLOYEE")
     private EmploymentStatus employmentStatus;
 
     @NotBlank
     @Pattern(regexp = "\\d{12}")
-    @Schema(description = "User's INN", example = "012345678912")
+    @Schema(description = "User's INN", type = "string", example = "012345678912")
     private String employerINN;
 
     @Min(0)
     @NotNull
-    @Schema(description = "User's salary", example = "50000")
+    @Schema(description = "User's salary", type = "number", example = "50000")
     private BigDecimal salary;
 
     @NotNull
-    @Schema(description = "User's position", example = "MIDDLE_MANAGER")
+    @Schema(description = "User's position", type = "string", example = "MIDDLE_MANAGER")
     private Position position;
 
     @Min(0)
     @NotNull
-    @Schema(description = "User's total work experience in months", example = "36")
+    @Schema(description = "User's total work experience in months", type = "integer", format = "int32", example = "36")
     private Integer workExperienceTotal;
 
     @Min(0)
     @NotNull
-    @Schema(description = "User's current work experience in months", example = "12")
+    @Schema(description = "User's current work experience in months", type = "integer", format = "int32", example = "12")
     private Integer workExperienceCurrent;
 }
