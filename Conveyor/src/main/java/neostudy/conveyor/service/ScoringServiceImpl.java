@@ -160,11 +160,11 @@ public class ScoringServiceImpl implements ScoringService {
     private BigDecimal calculateRateForEmployment(EmploymentDTO employmentDTO, BigDecimal rate) {
         log.info("Calculated rate for employment: " + employmentDTO + ". Initial rate: " + rate);
 
-        switch (employmentDTO.getEmploymentStatus()) {
+        switch (employmentDTO.getStatus()) {
             case SELF_EMPLOYED -> rate = rate.add(rateIncreaseForSelfEmployed);
             case BUSINESS_OWNER -> rate = rate.add(rateIncreaseForBusinessman);
         }
-        switch (employmentDTO.getPosition()) {
+        switch (employmentDTO.getEmploymentPosition()) {
             case MID_MANAGER -> rate = rate.subtract(discountForMiddleManager);
             case TOP_MANAGER -> rate = rate.subtract(discountForTopManager);
         }
@@ -174,7 +174,7 @@ public class ScoringServiceImpl implements ScoringService {
     }
 
     private boolean isEmploymentStatusValid(EmploymentDTO employmentDTO) {
-        if (employmentDTO.getEmploymentStatus() == EmploymentStatus.UNEMPLOYED) {
+        if (employmentDTO.getStatus() == EmploymentStatus.UNEMPLOYED) {
             return false;
         }
         return employmentDTO.getWorkExperienceTotal() >= 12 && employmentDTO.getWorkExperienceCurrent() >= 3;

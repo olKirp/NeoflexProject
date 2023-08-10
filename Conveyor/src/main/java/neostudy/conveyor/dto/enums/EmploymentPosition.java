@@ -1,7 +1,7 @@
 package neostudy.conveyor.dto.enums;
 
-public enum Position {
-    EMPLOYEE,
+public enum EmploymentPosition {
+    WORKER,
     MID_MANAGER,
     TOP_MANAGER,
     OWNER

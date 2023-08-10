@@ -181,7 +181,7 @@ components:
         employmentStatus:
           type: string
           description: User's employment status
-          example: EMPLOYEE
+          example: EMPLOYED
         employerINN:
           pattern: "\\d{12}"
           type: string
@@ -195,7 +195,7 @@ components:
         position:
           type: string
           description: User's position
-          example: MIDDLE_MANAGER
+          example: MID_MANAGER
         workExperienceTotal:
           minimum: 0
           type: integer

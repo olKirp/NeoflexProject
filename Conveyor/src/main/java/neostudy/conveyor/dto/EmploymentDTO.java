@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import neostudy.conveyor.dto.enums.EmploymentStatus;
-import neostudy.conveyor.dto.enums.Position;
+import neostudy.conveyor.dto.enums.EmploymentPosition;
 
 import java.math.BigDecimal;
 
@@ -19,8 +19,8 @@ import java.math.BigDecimal;
 public class EmploymentDTO {
 
     @NotNull
-    @Schema(description = "User's employment status", type = "string", example = "EMPLOYEE")
-    private EmploymentStatus employmentStatus;
+    @Schema(description = "User's employment status", type = "string", example = "EMPLOYED")
+    private EmploymentStatus status;
 
     @NotBlank
     @Pattern(regexp = "\\d{12}")
@@ -33,8 +33,8 @@ public class EmploymentDTO {
     private BigDecimal salary;
 
     @NotNull
-    @Schema(description = "User's position", type = "string", example = "MIDDLE_MANAGER")
-    private Position position;
+    @Schema(description = "User's position", type = "string", example = "MID_MANAGER")
+    private EmploymentPosition employmentPosition;
 
     @Min(0)
     @NotNull

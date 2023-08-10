@@ -6,7 +6,7 @@ import neostudy.conveyor.dto.ScoringDataDTO;
 import neostudy.conveyor.dto.enums.EmploymentStatus;
 import neostudy.conveyor.dto.enums.Gender;
 import neostudy.conveyor.dto.enums.MaritalStatus;
-import neostudy.conveyor.dto.enums.Position;
+import neostudy.conveyor.dto.enums.EmploymentPosition;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,8 +60,8 @@ class ScoringServiceImplTest {
         scoringDataDTO.setIsInsuranceEnabled(true);
 
         employmentDTO.setSalary(new BigDecimal("50000.00"));
-        employmentDTO.setEmploymentStatus(EmploymentStatus.EMPLOYED);
-        employmentDTO.setPosition(Position.EMPLOYEE);
+        employmentDTO.setStatus(EmploymentStatus.EMPLOYED);
+        employmentDTO.setEmploymentPosition(EmploymentPosition.WORKER);
         employmentDTO.setWorkExperienceTotal(20);
         employmentDTO.setWorkExperienceCurrent(10);
     }
@@ -105,11 +105,11 @@ class ScoringServiceImplTest {
     void givenIncorrectEmployment_ThanThrowException() {
         String correctMsg = "Loan request is not valid, user is unemployed or has a total work experience less than 12 or current experience less than 3";
 
-        employmentDTO.setEmploymentStatus(EmploymentStatus.UNEMPLOYED);
+        employmentDTO.setStatus(EmploymentStatus.UNEMPLOYED);
         Exception exception = assertThrows(IllegalArgumentException.class, () -> scoringService.createCredit(scoringDataDTO));
         assertEquals(correctMsg, exception.getMessage());
 
-        employmentDTO.setEmploymentStatus(EmploymentStatus.EMPLOYED);
+        employmentDTO.setStatus(EmploymentStatus.EMPLOYED);
         employmentDTO.setWorkExperienceCurrent(1);
         exception = assertThrows(IllegalArgumentException.class, () -> scoringService.createCredit(scoringDataDTO));
         assertEquals(correctMsg, exception.getMessage());
@@ -130,22 +130,22 @@ class ScoringServiceImplTest {
 
     @Test
     void givenManagerPosition_ThanRateDecrease() {
-        employmentDTO.setPosition(Position.MID_MANAGER);
+        employmentDTO.setEmploymentPosition(EmploymentPosition.MID_MANAGER);
         BigDecimal rate = scoringService.createCredit(scoringDataDTO).getRate();
         assertEquals(new BigDecimal("6.30"), rate);
 
-        employmentDTO.setPosition(Position.TOP_MANAGER);
+        employmentDTO.setEmploymentPosition(EmploymentPosition.TOP_MANAGER);
         rate = scoringService.createCredit(scoringDataDTO).getRate();
         assertEquals(new BigDecimal("4.30"), rate);
     }
 
     @Test
     void givenEmploymentStatus_ThanRateIncrease() {
-        employmentDTO.setEmploymentStatus(EmploymentStatus.SELF_EMPLOYED);
+        employmentDTO.setStatus(EmploymentStatus.SELF_EMPLOYED);
         BigDecimal rate = scoringService.createCredit(scoringDataDTO).getRate();
         assertEquals(new BigDecimal("9.30"), rate);
 
-        employmentDTO.setEmploymentStatus(EmploymentStatus.BUSINESS_OWNER);
+        employmentDTO.setStatus(EmploymentStatus.BUSINESS_OWNER);
         rate = scoringService.createCredit(scoringDataDTO).getRate();
         assertEquals(new BigDecimal("11.30"), rate);
     }
@@ -191,7 +191,7 @@ class ScoringServiceImplTest {
     void givenRateLessThanMin_ThanReturnMinimalRate() {
         scoringDataDTO.setIsSalaryClient(true);
         scoringDataDTO.setIsInsuranceEnabled(true);
-        scoringDataDTO.getEmployment().setPosition(Position.TOP_MANAGER);
+        scoringDataDTO.getEmployment().setEmploymentPosition(EmploymentPosition.TOP_MANAGER);
         scoringDataDTO.setBirthdate(LocalDate.of(1980, 1, 1));
 
         assertEquals(minimalRate, scoringService.createCredit(scoringDataDTO).getRate());
