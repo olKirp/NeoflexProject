@@ -6,15 +6,11 @@ import neostudy.deal.dto.enums.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 
-import java.util.Optional;
-
 public interface ApplicationService {
 
-    Optional<Application> getApplicationById(Long id);
+    Application getApplicationById(Long applicationId);
 
     void setApplicationStatus(Application application, ApplicationStatus status, ChangeType type);
-
-    Application findApplicationById(Long applicationId);
 
     Application createApplicationForClient(Client client);
 

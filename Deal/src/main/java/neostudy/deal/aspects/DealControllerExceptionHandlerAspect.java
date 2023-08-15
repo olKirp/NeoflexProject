@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DealControllerExceptionHandlerAspect {
 
-    @Around("execution(* neostudy.deal.controller.DealControllerExceptionHandler.*(..))")
+    @Around("execution(* neostudy.deal.exceptionshandler.DealControllerExceptionHandler.*(..))")
     public Object catchException(ProceedingJoinPoint point) throws Throwable {
         log.info("Exception: " +  ((Exception)point.getArgs()[0]).getMessage());
         return point.proceed();

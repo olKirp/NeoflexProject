@@ -9,8 +9,6 @@ import neostudy.deal.repository.ClientRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 @Service
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
@@ -54,6 +52,4 @@ public class ClientServiceImpl implements ClientService {
         Client client = mapLoanRequestToClient(loanRequest);
         return saveClient(client);
     }
-
-
 }

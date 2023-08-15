@@ -8,6 +8,4 @@ import neostudy.deal.entity.Client;
 public interface FinishRegistrationService {
 
     ScoringDataDTO mapToScoringData(FinishRegistrationRequestDTO request, Client client, Application application);
-
-
 }

@@ -1,4 +1,4 @@
-package neostudy.deal.controller;
+package neostudy.deal.exceptionshandler;
 
 import neostudy.deal.exceptions.ApplicationAlreadyApprovedException;
 import neostudy.deal.exceptions.EntityAlreadyExistsException;

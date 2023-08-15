@@ -48,7 +48,7 @@ public class DealServiceImpl implements DealService {
             throw new NotFoundException("Application " + appliedOffer.getApplicationId() + " not found");
         }
 
-        Application application = applicationService.getApplicationById(appliedOffer.getApplicationId()).get();
+        Application application = applicationService.getApplicationById(appliedOffer.getApplicationId());
 
         if (applicationService.isApplicationApprovedByConveyor(application)) {
             throw new ApplicationAlreadyApprovedException("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed");
@@ -59,7 +59,7 @@ public class DealServiceImpl implements DealService {
     }
 
     private Application findApplicationById(Long applicationId) {
-        return applicationService.findApplicationById(applicationId);
+        return applicationService.getApplicationById(applicationId);
     }
 
     private Application createApplicationForLoanRequest(LoanApplicationRequestDTO loanRequest) {
@@ -78,7 +78,6 @@ public class DealServiceImpl implements DealService {
         addInfoToClient(application.getClient(), registrationRequest);
 
         ResponseEntity<CreditDTO> entity = conveyorAPIClient.createCredit(mapToScoringData(registrationRequest, application));
-        //todo what if body is a error message?
 
         Credit credit = creditService.createCreditFromCreditDTO(entity.getBody());
 

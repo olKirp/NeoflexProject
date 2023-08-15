@@ -1,7 +1,8 @@
-package neostudy.deal.mapper;
+package neostudy.deal.service;
 
 import neostudy.deal.dto.EmploymentDTO;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
+import neostudy.deal.dto.LoanApplicationRequestDTO;
 import neostudy.deal.dto.enums.EmploymentPosition;
 import neostudy.deal.dto.enums.EmploymentStatus;
 import neostudy.deal.dto.enums.Gender;
@@ -9,21 +10,75 @@ import neostudy.deal.dto.enums.MaritalStatus;
 import neostudy.deal.entity.Client;
 import neostudy.deal.entity.Employment;
 import neostudy.deal.entity.Passport;
+import neostudy.deal.mapper.ClientMapper;
+import neostudy.deal.repository.ClientRepository;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(MockitoExtension.class)
+class ClientServiceImplTest {
 
-class ClientMapperTest {
+    private static ClientServiceImpl clientService;
 
-    private final ClientMapper clientMapper = Mappers.getMapper(ClientMapper.class);
+    private static final Client client = Instancio.create(Client.class);
+
+    private static final Client existedClient = Instancio.create(Client.class);
+
+    @BeforeAll
+    static void init(@Mock ClientRepository clientRepository) {
+        ModelMapper modelMapper = new ModelMapper();
+        ClientMapper mapper = Mappers.getMapper(ClientMapper.class);
+        existedClient.getPassport().setSeries("0000");
+        Mockito.when(clientRepository.existsClientByPassportSeriesAndPassportNumber(existedClient.getPassport().getSeries(), existedClient.getPassport().getNumber())).thenReturn(true);
+
+        Mockito.when(clientRepository.findClientByPassportSeriesAndPassportNumber(existedClient.getPassport().getSeries(), existedClient.getPassport().getNumber())).thenReturn(existedClient);
+
+        clientService = new ClientServiceImpl(clientRepository, mapper, modelMapper);
+    }
 
     @Test
-    void updateClientFromFinishRegistrationRequest() {
+    void mapLoanRequestToClient() {
+        LoanApplicationRequestDTO request = Instancio.create(LoanApplicationRequestDTO.class);
+        request.setPassportNumber(existedClient.getPassport().getNumber());
+        request.setPassportSeries(existedClient.getPassport().getSeries());
+
+        Client client = clientService.mapLoanRequestToClient(request);
+
+        assertEquals(existedClient.getId(), client.getId());
+        assertEquals(request.getBirthdate(), client.getBirthdate());
+        assertEquals(request.getEmail(), client.getEmail());
+        assertEquals(request.getFirstName(), client.getFirstName());
+        assertEquals(request.getLastName(), client.getLastName());
+        assertEquals(request.getMiddleName(), client.getMiddleName());
+
+        request = Instancio.create(LoanApplicationRequestDTO.class);
+        request.setPassportSeries("1111");
+        client = clientService.mapLoanRequestToClient(request);
+
+        assertNull(client.getId());
+        assertEquals(request.getBirthdate(), client.getBirthdate());
+        assertEquals(request.getEmail(), client.getEmail());
+        assertEquals(request.getFirstName(), client.getFirstName());
+        assertEquals(request.getLastName(), client.getLastName());
+        assertEquals(request.getMiddleName(), client.getMiddleName());
+    }
+
+
+    @Test
+    void addInfoToClient() {
         EmploymentDTO employmentDTO = new EmploymentDTO();
         employmentDTO.setEmploymentPosition(EmploymentPosition.OWNER);
         employmentDTO.setStatus(EmploymentStatus.BUSINESS_OWNER);
@@ -55,9 +110,7 @@ class ClientMapperTest {
                 .passport(passport)
                 .build();
 
-        clientMapper.updateClientFromFinishRegistrationRequest(request, client);
-
-        System.out.println(client);
+        clientService.addInfoToClient(client, request);
 
         assertEquals(request.getGender(), client.getGender());
         assertEquals(request.getMaritalStatus(), client.getMaritalStatus());

@@ -59,7 +59,6 @@ public class DealController {
             example = "1",
             required = true)
                              @PathVariable("applicationId")Long applicationId) {
-
         dealService.createCreditForApplication(registrationRequest, applicationId);
     }
 }

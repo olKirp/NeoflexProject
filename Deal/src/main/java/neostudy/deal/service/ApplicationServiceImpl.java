@@ -23,10 +23,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
 
-    public Optional<Application> getApplicationById(Long id) {
-        return applicationRepository.findById(id);
-    }
-
     public void setApplicationStatus(Application application, ApplicationStatus status, ChangeType type) {
         application.setStatus(status);
         StatusHistory statusHistory = StatusHistory.builder()
@@ -54,8 +50,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationRepository.save(application);
     }
 
-    public Application findApplicationById(Long applicationId) {
-        Optional<Application> application = getApplicationById(applicationId);
+    public Application getApplicationById(Long applicationId) {
+        Optional<Application> application = applicationRepository.findById(applicationId);
         if (application.isEmpty()) {
             throw new NotFoundException("Application " + applicationId + " not found");
         }
@@ -67,7 +63,9 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     public boolean isApplicationApprovedByConveyor(Application application) {
         return !(application.getStatus() == ApplicationStatus.PREAPPROVAL
-                || application.getStatus() == ApplicationStatus.APPROVED);
+                || application.getStatus() == ApplicationStatus.APPROVED
+                || application.getStatus() == ApplicationStatus.CLIENT_DENIED
+                || application.getStatus() == ApplicationStatus.CC_DENIED);
     }
 
     public Application createApplicationForClient(Client client) {

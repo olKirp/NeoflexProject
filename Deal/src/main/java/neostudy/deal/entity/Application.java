@@ -47,6 +47,4 @@ public class Application {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "status_history")
     private StatusHistory statusHistory;
-
-    //todo ses code?
 }
