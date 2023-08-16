@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import neostudy.conveyor.dto.enums.EmploymentStatus;
-import neostudy.conveyor.dto.enums.Position;
+import neostudy.conveyor.dto.enums.EmploymentPosition;
 
 import java.math.BigDecimal;
 
@@ -19,30 +19,30 @@ import java.math.BigDecimal;
 public class EmploymentDTO {
 
     @NotNull
-    @Schema(description = "User's employment status", example = "EMPLOYEE")
-    private EmploymentStatus employmentStatus;
+    @Schema(description = "User's employment status", type = "string", example = "EMPLOYED")
+    private EmploymentStatus status;
 
     @NotBlank
     @Pattern(regexp = "\\d{12}")
-    @Schema(description = "User's INN", example = "012345678912")
+    @Schema(description = "User's INN", type = "string", example = "012345678912")
     private String employerINN;
 
     @Min(0)
     @NotNull
-    @Schema(description = "User's salary", example = "50000")
+    @Schema(description = "User's salary", type = "number", example = "50000")
     private BigDecimal salary;
 
     @NotNull
-    @Schema(description = "User's position", example = "MIDDLE_MANAGER")
-    private Position position;
+    @Schema(description = "User's position", type = "string", example = "MID_MANAGER")
+    private EmploymentPosition employmentPosition;
 
     @Min(0)
     @NotNull
-    @Schema(description = "User's total work experience in months", example = "36")
+    @Schema(description = "User's total work experience in months", type = "integer", format = "int32", example = "36")
     private Integer workExperienceTotal;
 
     @Min(0)
     @NotNull
-    @Schema(description = "User's current work experience in months", example = "12")
+    @Schema(description = "User's current work experience in months", type = "integer", format = "int32", example = "12")
     private Integer workExperienceCurrent;
 }

@@ -15,27 +15,27 @@ import java.util.List;
 @NoArgsConstructor
 public class CreditDTO {
 
-    @Schema(description = "Total amount with insurance (if enabled)", example = "130000")
+    @Schema(description = "Total amount with insurance (if enabled)", type = "number", example = "130000")
     private BigDecimal amount;
 
-    @Schema(description = "Term of loan in months", example = "10")
+    @Schema(description = "Term of loan in months", type = "integer", format = "int32", example = "10")
     private Integer term;
 
-    @Schema(description = "Loan monthly payment", example = "13300")
+    @Schema(description = "Loan monthly payment", type = "number", example = "13300")
     private BigDecimal monthlyPayment;
 
-    @Schema(description = "Interest rate per annum", example = "5")
+    @Schema(description = "Interest rate per annum", type = "number", example = "5")
     private BigDecimal rate;
 
-    @Schema(description = "PSK in percentages", example = "5")
+    @Schema(description = "PSK in percentages", type = "number", example = "5")
     private BigDecimal psk;
 
-    @Schema(description = "Is insurance enabled", example = "true")
+    @Schema(description = "Is insurance enabled", type = "boolean", example = "true")
     private Boolean isInsuranceEnabled;
 
-    @Schema(description = "Is the user salary client", example = "true")
+    @Schema(description = "Is the user salary client", type = "boolean", example = "true")
     private Boolean isSalaryClient;
 
-    @Schema(description = "Payment schedule")
+    @Schema(description = "Payment schedule", type = "array")
     private List<PaymentScheduleElement> paymentSchedule;
 }
