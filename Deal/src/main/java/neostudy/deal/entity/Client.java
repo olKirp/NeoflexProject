@@ -51,14 +51,14 @@ public class Client {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY)
     private Application application;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "passport_id", referencedColumnName = "id")
+    @JoinColumn(name = "passport_id", referencedColumnName = "id", foreignKey=@ForeignKey(name = "fk_client_passport"))
     private Passport passport;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "employment_id", referencedColumnName = "id")
+    @JoinColumn(name = "employment_id", referencedColumnName = "id", foreignKey=@ForeignKey(name = "fk_client_employment"))
     private Employment employment;
 }

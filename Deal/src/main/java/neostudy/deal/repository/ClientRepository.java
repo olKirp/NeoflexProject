@@ -10,8 +10,4 @@ public interface ClientRepository extends CrudRepository<Client, Long> {
     Client findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
 
     boolean existsClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
-
-    boolean existsClientByEmploymentINN(String inn);
-
-    boolean existsClientByAccount(String account);
 }

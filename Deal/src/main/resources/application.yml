@@ -7,7 +7,16 @@ spring:
         hibernate:
            ddl-auto: update
            format_sql: true
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
     datasource:
         url: jdbc:postgresql://localhost:5432/deal_db
         username: user
         password: pass
+    cloud:
+        openfeign:
+            client:
+                config:
+                    conveyor:
+                        url: http://localhost:8080/

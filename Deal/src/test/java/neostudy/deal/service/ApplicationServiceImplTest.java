@@ -58,10 +58,6 @@ class ApplicationServiceImplTest {
         Exception exception = assertThrows(NotFoundException.class, () -> applicationService.getApplicationById(1L));
         assertEquals(correctMsg, exception.getMessage());
 
-        correctMsg = "No applied offers for application 2";
-        exception = assertThrows(NotFoundException.class, () -> applicationService.getApplicationById(2L));
-        assertEquals(correctMsg, exception.getMessage());
-
         assertEquals(application, applicationService.getApplicationById(3L));
     }
 

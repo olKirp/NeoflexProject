@@ -36,6 +36,6 @@ public class Passport {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "passport", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "passport", fetch = FetchType.LAZY)
     private Client client;
 }

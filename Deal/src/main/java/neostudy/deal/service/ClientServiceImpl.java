@@ -31,25 +31,20 @@ public class ClientServiceImpl implements ClientService {
     }
 
     private Client updateClient(LoanApplicationRequestDTO loanRequest) {
-        Client existedClient = clientRepository.findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
+        Client existedClient = findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
         modelMapper.map(loanRequest, existedClient);
         return existedClient;
+    }
+
+    public Client findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber) {
+        return clientRepository.findClientByPassportSeriesAndPassportNumber(passportSeries, passportNumber);
     }
 
     public void addInfoToClient(Client client, FinishRegistrationRequestDTO registrationRequest) {
         clientMapper.updateClientFromFinishRegistrationRequest(registrationRequest, client);
     }
 
-    public boolean isClientExistByINN(String inn) {
-        return clientRepository.existsClientByEmploymentINN(inn);
-    }
-
-    public boolean isClientExistsByAccount(String account) {
-        return clientRepository.existsClientByAccount(account);
-    }
-
     public Client createClientForLoanRequest(LoanApplicationRequestDTO loanRequest) {
-        Client client = mapLoanRequestToClient(loanRequest);
-        return saveClient(client);
+        return mapLoanRequestToClient(loanRequest);
     }
 }

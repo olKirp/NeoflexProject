@@ -1,10 +1,12 @@
 package neostudy.deal.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
 import neostudy.deal.dto.LoanApplicationRequestDTO;
 import neostudy.deal.dto.LoanOfferDTO;
 import neostudy.deal.exceptions.ApplicationAlreadyApprovedException;
+import neostudy.deal.exceptions.CreditConveyorDeniedException;
 import neostudy.deal.exceptions.NotFoundException;
 import neostudy.deal.service.*;
 import org.instancio.Instancio;
@@ -53,7 +55,7 @@ class DealControllerTest {
     @Test
     void saveLoanOffer() throws Exception {
         LoanOfferDTO offer = new LoanOfferDTO();
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/application")
+        mockMvc.perform(MockMvcRequestBuilders.post("/deal/offer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isBadRequest());
@@ -85,6 +87,8 @@ class DealControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isConflict());
+
+
     }
 
     @Test
@@ -110,5 +114,11 @@ class DealControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isConflict());
+
+        Mockito.doThrow(new CreditConveyorDeniedException("Credit conveyor exception")).when(dealService).createCreditForApplication(registrationRequest, 1L);
+        mockMvc.perform(MockMvcRequestBuilders.post("/deal/calculate/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registrationRequest)))
+                .andExpect(status().isOk());
     }
 }

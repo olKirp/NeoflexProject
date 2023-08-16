@@ -55,10 +55,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (application.isEmpty()) {
             throw new NotFoundException("Application " + applicationId + " not found");
         }
-        if (application.get().getAppliedOffer() == null) {
-            throw new NotFoundException("No applied offers for application " + application.get().getId());
-        }
         return application.get();
+    }
+
+    public boolean checkIfAppliedOfferExists(Application application) {
+        return application.getAppliedOffer() != null;
     }
 
     public boolean isApplicationApprovedByConveyor(Application application) {

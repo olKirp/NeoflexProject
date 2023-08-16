@@ -20,7 +20,7 @@ class CreditServiceImplTest {
 
     private static CreditServiceImpl creditService;
 
-    private static Credit credit = new Credit();
+    private static final Credit credit = new Credit();
 
     @BeforeAll
     static void init(@Mock CreditRepository creditRepository) {

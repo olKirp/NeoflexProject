@@ -33,8 +33,6 @@ class ClientServiceImplTest {
 
     private static ClientServiceImpl clientService;
 
-    private static final Client client = Instancio.create(Client.class);
-
     private static final Client existedClient = Instancio.create(Client.class);
 
     @BeforeAll

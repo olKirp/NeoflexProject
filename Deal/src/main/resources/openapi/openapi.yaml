@@ -52,6 +52,8 @@ paths:
               $ref: '#/components/schemas/FinishRegistrationRequestDTO'
         required: true
       responses:
+        "500":
+          description: Conveyor server unavailable or internal server error occured
         "400":
           description: FinishRegistrationRequestDTO is not valid
         "200":
@@ -76,6 +78,22 @@ paths:
               $ref: '#/components/schemas/LoanApplicationRequestDTO'
         required: true
       responses:
+        "500":
+          description: Conveyor server unavailable or internal server error occured
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LoanOfferDTO'
+        "409":
+          description: Client has approved application and application cannot be changed
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LoanOfferDTO'
         "400":
           description: LoanApplicationRequestDTO is not valid
           content:

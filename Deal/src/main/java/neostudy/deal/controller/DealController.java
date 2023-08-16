@@ -26,7 +26,9 @@ public class DealController {
     @Operation(summary= "Calculation of possible loan offers", description = "Returns four LoanOfferDTO or message with the reason for rejection of the application")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "CreditDTO successfully created or the application was rejected, but LoanApplicationRequestDTO was valid"),
-            @ApiResponse(responseCode = "400", description = "LoanApplicationRequestDTO is not valid")})
+            @ApiResponse(responseCode = "400", description = "LoanApplicationRequestDTO is not valid"),
+            @ApiResponse(responseCode = "500", description = "Conveyor server unavailable or internal server error occured"),
+            @ApiResponse(responseCode = "409", description = "Client has approved application and application cannot be changed")})
     public ResponseEntity<List<LoanOfferDTO>> createLoanOffers(@Valid @RequestBody LoanApplicationRequestDTO loanRequest) {
         List<LoanOfferDTO> offers = dealService.getLoanOffers(loanRequest);
         return ResponseEntity.ok(offers);
@@ -52,7 +54,8 @@ public class DealController {
             @ApiResponse(responseCode = "200", description = "CreditDTO successfully created or the application was rejected, but user's data was valid"),
             @ApiResponse(responseCode = "400", description = "FinishRegistrationRequestDTO is not valid"),
             @ApiResponse(responseCode = "404", description = "Application not found"),
-            @ApiResponse(responseCode = "409", description = "The application has already been approved and cannot be changed")})
+            @ApiResponse(responseCode = "409", description = "The application has already been approved and cannot be changed"),
+            @ApiResponse(responseCode = "500", description = "Conveyor server unavailable or internal server error occured")})
     public void createCredit(@Valid @RequestBody FinishRegistrationRequestDTO registrationRequest,
                              @Parameter(name =  "applicationId",
             description  = "ID of application",

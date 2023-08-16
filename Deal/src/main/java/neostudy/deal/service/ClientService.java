@@ -6,15 +6,12 @@ import neostudy.deal.entity.Client;
 
 public interface ClientService {
 
-    Client mapLoanRequestToClient(LoanApplicationRequestDTO loanRequest);
-
     Client saveClient(Client client);
 
     Client createClientForLoanRequest(LoanApplicationRequestDTO loanRequest);
 
     void addInfoToClient(Client client, FinishRegistrationRequestDTO registrationRequest);
 
-    boolean isClientExistByINN(String inn);
+    Client findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
 
-    boolean isClientExistsByAccount(String account);
 }

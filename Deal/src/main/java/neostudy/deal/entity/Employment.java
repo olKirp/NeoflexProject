@@ -37,7 +37,7 @@ public class Employment {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "employment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "employment", fetch = FetchType.LAZY)
     private Client client;
 
     @Enumerated(EnumType.STRING)

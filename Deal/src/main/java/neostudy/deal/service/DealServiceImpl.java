@@ -1,5 +1,6 @@
 package neostudy.deal.service;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.*;
 import neostudy.deal.dto.enums.ApplicationStatus;
@@ -8,7 +9,7 @@ import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 import neostudy.deal.entity.Credit;
 import neostudy.deal.exceptions.ApplicationAlreadyApprovedException;
-import neostudy.deal.exceptions.EntityAlreadyExistsException;
+import neostudy.deal.exceptions.CreditConveyorDeniedException;
 import neostudy.deal.exceptions.NotFoundException;
 import neostudy.deal.feignclient.ConveyorAPIClient;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +32,31 @@ public class DealServiceImpl implements DealService {
     private final ConveyorAPIClient conveyorAPIClient;
 
     public List<LoanOfferDTO> getLoanOffers(LoanApplicationRequestDTO loanRequest) {
-        Application application = createApplicationForLoanRequest(loanRequest);
+        Client client = clientService.findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
+        if (client != null && applicationService.checkIfAppliedOfferExists(client.getApplication())) {
+            throw new ApplicationAlreadyApprovedException("Client with id " + client.getId() + " already approved application. Application cannot be changed");
+        }
 
-        List<LoanOfferDTO> offers = conveyorAPIClient.createLoanOffers(loanRequest).getBody();
+        List<LoanOfferDTO> offers = getLoanOffersFromConveyor(loanRequest);
+
+        Application application = createApplicationAndClientForLoanRequest(loanRequest);
+        applicationService.setApplicationStatus(application, ApplicationStatus.PREAPPROVAL, ChangeType.AUTOMATIC);
+        application = applicationService.saveApplication(application);
         setApplicationIdToOffers(offers, application.getId());
 
         return offers;
+    }
+
+    private List<LoanOfferDTO> getLoanOffersFromConveyor(LoanApplicationRequestDTO loanRequest) {
+        try {
+            return conveyorAPIClient.createLoanOffers(loanRequest).getBody();
+        } catch (FeignException e) {
+            if (e.status() == 400) {
+                throw new CreditConveyorDeniedException(e.contentUTF8());
+            } else {
+                throw e;
+            }
+        }
     }
 
     private void setApplicationIdToOffers(List<LoanOfferDTO> offers, Long id) {
@@ -62,22 +82,34 @@ public class DealServiceImpl implements DealService {
         return applicationService.getApplicationById(applicationId);
     }
 
-    private Application createApplicationForLoanRequest(LoanApplicationRequestDTO loanRequest) {
+    private Application createApplicationAndClientForLoanRequest(LoanApplicationRequestDTO loanRequest) {
         Client client = clientService.createClientForLoanRequest(loanRequest);
-
-        Application application = applicationService.createApplicationForClient(client);
-        return applicationService.saveApplication(application);
+        clientService.saveClient(client);
+        return applicationService.createApplicationForClient(client);
     }
 
     public void createCreditForApplication(FinishRegistrationRequestDTO registrationRequest, Long applicationId) {
         Application application = findApplicationById(applicationId);
-        if (applicationService.isApplicationApprovedByConveyor(application)) {
+        if (!applicationService.checkIfAppliedOfferExists(application)) {
+            throw new NotFoundException("No applied offers for application " + application.getId());
+        } else if (applicationService.isApplicationApprovedByConveyor(application)) {
             throw new ApplicationAlreadyApprovedException("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed");
         }
 
         addInfoToClient(application.getClient(), registrationRequest);
 
-        ResponseEntity<CreditDTO> entity = conveyorAPIClient.createCredit(mapToScoringData(registrationRequest, application));
+        ResponseEntity<CreditDTO> entity;
+        try {
+            entity = conveyorAPIClient.createCredit(mapToScoringData(registrationRequest, application));
+        } catch (FeignException e) {
+            if (e.status() == 400) {
+                applicationService.setApplicationStatus(application, ApplicationStatus.CC_DENIED, ChangeType.AUTOMATIC);
+                applicationService.saveApplication(application);
+                throw new CreditConveyorDeniedException(e.contentUTF8());
+            } else {
+                throw e;
+            }
+        }
 
         Credit credit = creditService.createCreditFromCreditDTO(entity.getBody());
 
@@ -87,13 +119,6 @@ public class DealServiceImpl implements DealService {
     }
 
     private void addInfoToClient(Client client, FinishRegistrationRequestDTO registrationRequest) {
-        if (clientService.isClientExistByINN(registrationRequest.getEmploymentDTO().getEmployerINN())) {
-            throw new EntityAlreadyExistsException("Client with INN " + registrationRequest.getEmploymentDTO().getEmployerINN() + " already exists");
-        }
-        if (clientService.isClientExistsByAccount(registrationRequest.getAccount())) {
-            throw new EntityAlreadyExistsException("Client with account " + registrationRequest.getAccount() + " already exists");
-        }
-
         clientService.addInfoToClient(client, registrationRequest);
         clientService.saveClient(client);
     }

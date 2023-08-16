@@ -8,6 +8,8 @@ import neostudy.deal.entity.Client;
 
 public interface ApplicationService {
 
+    boolean checkIfAppliedOfferExists(Application application);
+
     Application getApplicationById(Long applicationId);
 
     void setApplicationStatus(Application application, ApplicationStatus status, ChangeType type);
@@ -15,8 +17,6 @@ public interface ApplicationService {
     Application createApplicationForClient(Client client);
 
     boolean isApplicationExists(Long id);
-
-    boolean isApplicationExistsByClientId(Long id);
 
     Application saveApplication(Application application);
 

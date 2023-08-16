@@ -16,5 +16,4 @@ public class DealControllerExceptionHandlerAspect {
         log.info("Exception: " +  ((Exception)point.getArgs()[0]).getMessage());
         return point.proceed();
     }
-
 }

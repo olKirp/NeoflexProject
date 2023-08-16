@@ -3,10 +3,7 @@ package neostudy.deal.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import neostudy.deal.dto.PaymentScheduleElement;
 import neostudy.deal.dto.enums.CreditStatus;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -20,6 +17,7 @@ import java.util.List;
 @Table(name = "credit")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = { "application"})
 public class Credit {
 
     @Id
@@ -62,6 +60,6 @@ public class Credit {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "credit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "credit", fetch = FetchType.LAZY)
     private Application application;
 }
