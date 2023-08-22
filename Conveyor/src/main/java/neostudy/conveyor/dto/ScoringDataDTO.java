@@ -1,13 +1,13 @@
-package neostudy.deal.dto;
+package neostudy.conveyor.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import neostudy.deal.dto.enums.Gender;
-import neostudy.deal.dto.enums.MaritalStatus;
-import neostudy.deal.dto.validation.PastConstraint;
+import neostudy.conveyor.dto.enums.Gender;
+import neostudy.conveyor.dto.enums.MaritalStatus;
+import neostudy.conveyor.dto.validation.PastConstraint;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

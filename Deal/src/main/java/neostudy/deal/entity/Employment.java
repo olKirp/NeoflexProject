@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Data
 @Entity
 @Table(name = "employment",
-        uniqueConstraints = { @UniqueConstraint(name = "UniqueINN", columnNames = { "employer_inn" }) })
+        uniqueConstraints = { @UniqueConstraint(name = "unique_inn", columnNames = { "employer_inn" }) })
 @ToString(exclude = { "client"})
 public class Employment {
     @Id

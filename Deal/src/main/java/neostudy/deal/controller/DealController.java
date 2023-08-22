@@ -23,7 +23,7 @@ public class DealController {
     private final DealService dealService;
 
     @PostMapping("/deal/application")
-    @Operation(summary= "Calculation of possible loan offers", description = "Returns four LoanOfferDTO or message with the reason for rejection of the application")
+    @Operation(summary = "Calculation of possible loan offers", description = "Returns four LoanOfferDTO or message with the reason for rejection of the application")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "CreditDTO successfully created or the application was rejected, but LoanApplicationRequestDTO was valid"),
             @ApiResponse(responseCode = "400", description = "LoanApplicationRequestDTO is not valid"),
@@ -36,7 +36,7 @@ public class DealController {
 
     @PostMapping("/deal/offer")
     @ResponseStatus(value = HttpStatus.OK)
-    @Operation(summary= "Select loan offer", description = "Receives offer selected by user and save it to database")
+    @Operation(summary = "Select loan offer", description = "Receives offer selected by user and save it to database")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Loan offer was successfully saved"),
             @ApiResponse(responseCode = "400", description = "LoanOfferDTO is not valid"),
@@ -48,7 +48,7 @@ public class DealController {
 
     @PostMapping("/deal/calculate/{applicationId}")
     @ResponseStatus(value = HttpStatus.OK)
-    @Operation(summary= "Create CreditDTO",
+    @Operation(summary = "Create CreditDTO",
             description = "Receives finish registration request and ID of application which was created earlier, than creates CreditDTO and saves it to database")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "CreditDTO successfully created or the application was rejected, but user's data was valid"),
@@ -57,11 +57,11 @@ public class DealController {
             @ApiResponse(responseCode = "409", description = "The application has already been approved and cannot be changed"),
             @ApiResponse(responseCode = "500", description = "Conveyor server unavailable or internal server error occured")})
     public void createCredit(@Valid @RequestBody FinishRegistrationRequestDTO registrationRequest,
-                             @Parameter(name =  "applicationId",
-            description  = "ID of application",
-            example = "1",
-            required = true)
-                             @PathVariable("applicationId")Long applicationId) {
+                             @Parameter(name = "applicationId",
+                                     description = "ID of application",
+                                     example = "1",
+                                     required = true)
+                             @PathVariable("applicationId") Long applicationId) {
         dealService.createCreditForApplication(registrationRequest, applicationId);
     }
 }

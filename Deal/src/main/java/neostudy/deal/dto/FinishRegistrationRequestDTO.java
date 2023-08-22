@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import neostudy.deal.dto.enums.Gender;
 import neostudy.deal.dto.enums.MaritalStatus;
-import neostudy.deal.validation.PastConstraint;
+import neostudy.deal.dto.validation.PastConstraint;
 
 import java.time.LocalDate;
 

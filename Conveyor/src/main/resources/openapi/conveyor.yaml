@@ -1,0 +1,379 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /conveyor/offers:
+    post:
+      tags:
+      - Conveyor controller
+      summary: Gets loan offers
+      description: Returns four LoanOfferDTO or message with the reason for rejection
+        of the application
+      operationId: createLoanOffers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanApplicationRequestDTO'
+        required: true
+      responses:
+        "400":
+          description: LoanApplicationRequestDTO is not valid
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LoanOfferDTO'
+        "200":
+          description: "CreditDTO successfully created or the application was rejected,\
+            \ but LoanApplicationRequestDTO was valid"
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LoanOfferDTO'
+  /conveyor/calculation:
+    post:
+      tags:
+      - Conveyor controller
+      summary: Get credit offer
+      description: Returns CreditDTO or message with the reason for rejection of the
+        application
+      operationId: createCredit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoringDataDTO'
+        required: true
+      responses:
+        "400":
+          description: ScoringDataDTO is not valid
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditDTO'
+        "200":
+          description: "CreditDTO successfully created or the application was rejected,\
+            \ but ScoringDataDTO was valid"
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditDTO'
+components:
+  schemas:
+    LoanApplicationRequestDTO:
+      required:
+      - amount
+      - birthdate
+      - email
+      - firstName
+      - lastName
+      - middleName
+      - passportNumber
+      - passportSeries
+      - term
+      type: object
+      properties:
+        amount:
+          type: number
+          description: Requested loan amount
+          example: 100000
+        term:
+          type: integer
+          description: Term of loan in months
+          format: int32
+          example: 10
+        firstName:
+          maxLength: 30
+          minLength: 2
+          pattern: "[A-Z][a-zA-Z]*"
+          type: string
+          description: User's firstname
+          example: Anna
+        lastName:
+          maxLength: 30
+          minLength: 2
+          pattern: "[A-Z][a-zA-Z]*"
+          type: string
+          description: User's lastname
+          example: Petrova
+        middleName:
+          maxLength: 30
+          minLength: 2
+          pattern: "[A-Z][a-zA-Z]*"
+          type: string
+          description: User's middle name
+          example: Sergeevna
+        email:
+          pattern: "[A-Za-z0-9_-]+@[A-Za-z0-9_-]+\\.[A-Za-z.]+"
+          type: string
+          description: User's email
+          example: example@mail.ru
+        birthdate:
+          type: string
+          description: User's birthdate. Should be before today
+          format: date
+          example: 1990-01-01
+        passportSeries:
+          pattern: "\\d{4}"
+          type: string
+          description: User's passport series
+          example: "1111"
+        passportNumber:
+          pattern: "\\d{6}"
+          type: string
+          description: User's passport number
+          example: "222222"
+    LoanOfferDTO:
+      type: object
+      properties:
+        applicationId:
+          type: integer
+          description: ID of user's application
+          format: int64
+          example: 1
+        requestedAmount:
+          type: number
+          description: Requested amount
+          example: 100000
+        totalAmount:
+          type: number
+          description: Total amount with insurance (if enabled)
+          example: 130000
+        term:
+          type: integer
+          description: Term of loan in months
+          format: int32
+          example: 10
+        monthlyPayment:
+          type: number
+          description: Loan monthly payment
+          example: 13300
+        rate:
+          type: number
+          description: Interest rate per annum
+          example: 5
+        isInsuranceEnabled:
+          type: boolean
+          description: Is insurance enabled
+          example: true
+        isSalaryClient:
+          type: boolean
+          description: Is the user salary client
+          example: true
+    EmploymentDTO:
+      required:
+      - employerINN
+      - employmentPosition
+      - salary
+      - status
+      - workExperienceCurrent
+      - workExperienceTotal
+      type: object
+      properties:
+        status:
+          type: string
+          description: User's employment status
+          example: EMPLOYED
+        employerINN:
+          pattern: "\\d{12}"
+          type: string
+          description: User's INN
+          example: "012345678912"
+        salary:
+          minimum: 0
+          type: number
+          description: User's salary
+          example: 50000
+        employmentPosition:
+          type: string
+          description: User's position
+          example: MID_MANAGER
+        workExperienceTotal:
+          minimum: 0
+          type: integer
+          description: User's total work experience in months
+          format: int32
+          example: 36
+        workExperienceCurrent:
+          minimum: 0
+          type: integer
+          description: User's current work experience in months
+          format: int32
+          example: 12
+      description: Description of employment status
+    ScoringDataDTO:
+      required:
+      - account
+      - amount
+      - birthdate
+      - employment
+      - firstName
+      - gender
+      - isInsuranceEnabled
+      - isSalaryClient
+      - lastName
+      - maritalStatus
+      - middleName
+      - passportIssueBranch
+      - passportIssueDate
+      - passportNumber
+      - passportSeries
+      - term
+      type: object
+      properties:
+        amount:
+          type: number
+          description: Requested loan amount
+          example: 100000
+        term:
+          type: integer
+          description: Term of loan in months
+          format: int32
+          example: 10
+        firstName:
+          maxLength: 30
+          minLength: 2
+          pattern: "[A-Z][a-zA-Z]*"
+          type: string
+          description: User's firstname
+          example: Anna
+        lastName:
+          maxLength: 30
+          minLength: 2
+          pattern: "[A-Z][a-zA-Z]*"
+          type: string
+          description: User's lastname
+          example: Petrova
+        middleName:
+          maxLength: 30
+          minLength: 2
+          pattern: "[A-Z][a-zA-Z]*"
+          type: string
+          description: User's middle name
+          example: Sergeevna
+        gender:
+          type: string
+          description: User's gender
+          example: FEMALE
+        birthdate:
+          type: string
+          description: User's birthdate. Should be before today
+          format: date
+          example: 1990-01-01
+        passportSeries:
+          pattern: "\\d{4}"
+          type: string
+          description: User's passport series
+          example: "1111"
+        passportNumber:
+          pattern: "\\d{6}"
+          type: string
+          description: User's passport number
+          example: "222222"
+        passportIssueDate:
+          type: string
+          description: Passport issue date. Should be before today
+          format: date
+          example: 2001-01-01
+        passportIssueBranch:
+          type: string
+          description: Passport issue branch
+          example: Department of Internal Affairs in Moscow
+        maritalStatus:
+          type: string
+          description: User's marital status
+          example: SINGLE
+        dependentAmount:
+          minimum: 0
+          type: integer
+          description: Number of dependent's
+          format: int32
+          example: 0
+        employment:
+          $ref: '#/components/schemas/EmploymentDTO'
+        account:
+          pattern: "[0-9]{10}"
+          type: string
+          description: User's account
+          example: "0123456789"
+        isInsuranceEnabled:
+          type: boolean
+          description: Does the user wish to purchase insurance
+          example: true
+        isSalaryClient:
+          type: boolean
+          description: Is the user a salary client
+          example: false
+    CreditDTO:
+      type: object
+      properties:
+        amount:
+          type: number
+          description: Total amount with insurance (if enabled)
+          example: 130000
+        term:
+          type: integer
+          description: Term of loan in months
+          format: int32
+          example: 10
+        monthlyPayment:
+          type: number
+          description: Loan monthly payment
+          example: 13300
+        rate:
+          type: number
+          description: Interest rate per annum
+          example: 5
+        psk:
+          type: number
+          description: PSK in percentages
+          example: 5
+        isInsuranceEnabled:
+          type: boolean
+          description: Is insurance enabled
+          example: true
+        isSalaryClient:
+          type: boolean
+          description: Is the user salary client
+          example: true
+        paymentSchedule:
+          type: array
+          description: Payment schedule
+          items:
+            $ref: '#/components/schemas/PaymentScheduleElement'
+    PaymentScheduleElement:
+      type: object
+      properties:
+        number:
+          type: integer
+          description: Number of loan payment
+          format: int32
+          example: 1
+        date:
+          type: number
+          description: Date of loan payment
+        totalPayment:
+          type: number
+          description: Total amount of payment
+          example: 15000
+        interestPayment:
+          type: number
+          description: Amount of interest payment
+          example: 5000
+        debtPayment:
+          type: number
+          description: Amount of debt payment
+          example: 10000
+        remainingDebt:
+          type: number
+          description: 'Remaining debt after payment '
+          example: 80000
+      description: Payment schedule

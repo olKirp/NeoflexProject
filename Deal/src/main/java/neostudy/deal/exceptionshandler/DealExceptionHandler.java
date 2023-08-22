@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class DealControllerExceptionHandler {
+public class DealExceptionHandler {
 
     @ExceptionHandler(ApplicationAlreadyApprovedException.class)
     public ResponseEntity<String> applicationAlreadyApprovedException(Exception exception) {

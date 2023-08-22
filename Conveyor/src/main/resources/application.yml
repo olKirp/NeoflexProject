@@ -1,0 +1,23 @@
+server:
+    port: 8080
+constants:
+    minAmount: 10000
+    maxAmount: 7000000
+    minTerm: 6
+    maxTerm: 60
+    baseRate: 10
+    minimalRate: 2.80
+    discountForSalaryClient: 2.50
+    discountForInsurance: 1.70
+    penaltyForNoInsurance: 3.00
+    insuranceCoefficient: 0.30
+    maxSalariesNum: 20
+    discountForMarriage: 3.00
+    rateIncreaseForDivorce: 1.00
+    rateIncreaseForDependents: 1.00
+    discountForMiddleManager: 2.00
+    discountForTopManager: 4.00
+    rateIncreaseForSelfEmployed: 1.00
+    rateIncreaseForBusinessman: 3.00
+    rateIncreaseForUnspecifiedGender: 3.00
+    discountForAge: 3.00

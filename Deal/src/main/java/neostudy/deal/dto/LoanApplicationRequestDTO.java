@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import neostudy.deal.validation.PastConstraint;
+import neostudy.deal.dto.validation.PastConstraint;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

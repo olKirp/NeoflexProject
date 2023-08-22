@@ -1,11 +1,14 @@
 server:
     port: 8081
 spring:
+    liquibase:
+        change-log: classpath:liquibase/changelog_v1.yaml
+        enabled: true
     jpa:
         open-in-view: true
         show-sql: false
         hibernate:
-           ddl-auto: update
+           ddl-auto: validate
            format_sql: true
         properties:
             hibernate:

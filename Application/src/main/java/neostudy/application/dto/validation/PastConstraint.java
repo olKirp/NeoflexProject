@@ -1,4 +1,4 @@
-package neostudy.deal.validation;
+package neostudy.application.dto.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

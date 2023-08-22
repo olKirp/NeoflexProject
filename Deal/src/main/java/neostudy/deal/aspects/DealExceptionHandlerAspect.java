@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Configuration;
 @Log4j2
 @Aspect
 @Configuration
-public class DealControllerExceptionHandlerAspect {
+public class DealExceptionHandlerAspect {
 
-    @Around("execution(* neostudy.deal.exceptionshandler.DealControllerExceptionHandler.*(..))")
+    @Around("execution(* neostudy.deal.exceptionshandler.DealExceptionHandler.*(..))")
     public Object catchException(ProceedingJoinPoint point) throws Throwable {
         log.info("Exception: " +  ((Exception)point.getArgs()[0]).getMessage());
         return point.proceed();
