@@ -6,6 +6,7 @@ import neostudy.conveyor.dto.LoanApplicationRequestDTO;
 import neostudy.conveyor.dto.ScoringDataDTO;
 import neostudy.conveyor.dto.enums.Gender;
 import neostudy.conveyor.dto.enums.MaritalStatus;
+import neostudy.conveyor.handler.ConveyorControllerExceptionHandler;
 import neostudy.conveyor.service.PrescoringService;
 import neostudy.conveyor.service.ScoringService;
 import org.junit.Before;

@@ -171,14 +171,14 @@ components:
     EmploymentDTO:
       required:
       - employerINN
-      - employmentStatus
-      - position
+      - employmentPosition
       - salary
+      - status
       - workExperienceCurrent
       - workExperienceTotal
       type: object
       properties:
-        employmentStatus:
+        status:
           type: string
           description: User's employment status
           example: EMPLOYED
@@ -192,7 +192,7 @@ components:
           type: number
           description: User's salary
           example: 50000
-        position:
+        employmentPosition:
           type: string
           description: User's position
           example: MID_MANAGER

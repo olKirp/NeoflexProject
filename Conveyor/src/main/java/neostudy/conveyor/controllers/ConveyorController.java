@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @Log4j2
 @RestController
 @RequiredArgsConstructor
@@ -31,8 +30,8 @@ public class ConveyorController {
 
     @Operation(summary= "Gets loan offers", description = "Returns four LoanOfferDTO or message with the reason for rejection of the application")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "CreditDTO successfully created or the application was rejected, but LoanApplicationRequestDTO was valid"),
-            @ApiResponse(responseCode = "400", description = "LoanApplicationRequestDTO is not valid")})
+            @ApiResponse(responseCode = "200", description = "CreditDTO successfully created"),
+            @ApiResponse(responseCode = "400", description = "LoanApplicationRequestDTO is not valid and was rejected")})
     @PostMapping("/conveyor/offers")
     public ResponseEntity<List<LoanOfferDTO>> createLoanOffers(@Valid @RequestBody LoanApplicationRequestDTO loanRequest) {
         List<LoanOfferDTO> offers = prescoringService.createLoanOffers(loanRequest);
@@ -41,8 +40,8 @@ public class ConveyorController {
 
     @Operation(summary= "Get credit offer", description = "Returns CreditDTO or message with the reason for rejection of the application")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "CreditDTO successfully created or the application was rejected, but ScoringDataDTO was valid"),
-            @ApiResponse(responseCode = "400", description = "ScoringDataDTO is not valid")})
+            @ApiResponse(responseCode = "200", description = "CreditDTO successfully created"),
+            @ApiResponse(responseCode = "400", description = "ScoringDataDTO is not valid and was rejected")})
     @PostMapping("/conveyor/calculation")
     public ResponseEntity<CreditDTO> createCredit(@Valid @RequestBody ScoringDataDTO scoringDataDTO) {
         CreditDTO credit = scoringService.createCredit(scoringDataDTO);
