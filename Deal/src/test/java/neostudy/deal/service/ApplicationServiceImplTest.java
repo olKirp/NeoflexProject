@@ -1,7 +1,7 @@
 package neostudy.deal.service;
 
 import neostudy.deal.dto.LoanOfferDTO;
-import neostudy.deal.dto.enums.ApplicationStatus;
+import neostudy.deal.dto.ApplicationStatus;
 import neostudy.deal.dto.enums.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
@@ -102,10 +102,21 @@ class ApplicationServiceImplTest {
         application.setStatus(ApplicationStatus.CREDIT_ISSUED);
         assertTrue(applicationService.isApplicationApprovedByConveyor(application));
 
-        application.setStatus(ApplicationStatus.DOCUMENT_CREATED);
+        application.setStatus(ApplicationStatus.DOCUMENTS_CREATED);
         assertTrue(applicationService.isApplicationApprovedByConveyor(application));
 
         application.setStatus(ApplicationStatus.DOCUMENT_SIGNED);
         assertTrue(applicationService.isApplicationApprovedByConveyor(application));
+    }
+
+    @Test
+    void checkIfAppliedOfferExists() {
+        LoanOfferDTO offer = application.getAppliedOffer();
+
+        assertTrue(applicationService.checkIfAppliedOfferExists(application));
+
+        application.setAppliedOffer(null);
+        assertFalse(applicationService.checkIfAppliedOfferExists(application));
+        application.setAppliedOffer(offer);
     }
 }

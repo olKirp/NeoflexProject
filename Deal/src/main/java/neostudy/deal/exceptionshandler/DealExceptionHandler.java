@@ -1,9 +1,8 @@
 package neostudy.deal.exceptionshandler;
 
 import feign.FeignException;
-import neostudy.deal.exceptions.ApplicationAlreadyApprovedException;
-import neostudy.deal.exceptions.CreditConveyorDeniedException;
-import neostudy.deal.exceptions.NotFoundException;
+import jakarta.validation.ConstraintViolationException;
+import neostudy.deal.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class DealExceptionHandler {
 
-    @ExceptionHandler(ApplicationAlreadyApprovedException.class)
+    @ExceptionHandler({IncorrectApplicationStatusException.class, UniqueConstraintViolationException.class, IncorrectSesCodeException.class})
     public ResponseEntity<String> applicationAlreadyApprovedException(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -38,5 +37,12 @@ public class DealExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Credit conveyor unavailable");
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<String> ConstraintViolationException(ConstraintViolationException exception) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
     }
 }

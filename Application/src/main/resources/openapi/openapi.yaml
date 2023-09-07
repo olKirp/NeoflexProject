@@ -80,15 +80,15 @@ components:
   schemas:
     LoanApplicationRequestDTO:
       required:
-      - amount
-      - birthdate
-      - email
-      - firstName
-      - lastName
-      - middleName
-      - passportNumber
-      - passportSeries
-      - term
+        - amount
+        - birthdate
+        - email
+        - firstName
+        - lastName
+        - middleName
+        - passportNumber
+        - passportSeries
+        - term
       type: object
       properties:
         amount:
@@ -128,9 +128,9 @@ components:
           example: example@mail.ru
         birthdate:
           type: string
-          description: User's birthdate. Should be before today
           format: date
-          example: 1990-01-01
+          example: '1990-01-01'
+          description: User's birthdate. Should be before today
         passportSeries:
           pattern: "\\d{4}"
           type: string
@@ -143,18 +143,17 @@ components:
           example: "222222"
     LoanOfferDTO:
       required:
-      - applicationId
-      - isInsuranceEnabled
-      - isSalaryClient
-      - monthlyPayment
-      - rate
-      - requestedAmount
-      - term
-      - totalAmount
+        - applicationId
+        - isInsuranceEnabled
+        - isSalaryClient
+        - monthlyPayment
+        - rate
+        - requestedAmount
+        - term
+        - totalAmount
       type: object
       properties:
         applicationId:
-          minimum: 0
           type: integer
           description: ID of user's application
           format: int64

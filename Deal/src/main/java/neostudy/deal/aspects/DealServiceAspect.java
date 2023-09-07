@@ -36,4 +36,10 @@ public class DealServiceAspect {
                 + " was started");
         return point.proceed();
     }
+
+    @Around("execution(* neostudy.deal.service.DealService+.sendMessage(..))")
+    public Object sendMessage(ProceedingJoinPoint point) throws Throwable {
+        log.info("Creating message for application " + point.getArgs()[0] + " was started. Topic: " + point.getArgs()[1]);
+        return point.proceed();
+    }
 }

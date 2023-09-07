@@ -1,15 +1,11 @@
 package neostudy.deal.service;
 
-import neostudy.deal.dto.EmploymentDTO;
-import neostudy.deal.dto.FinishRegistrationRequestDTO;
-import neostudy.deal.dto.LoanApplicationRequestDTO;
-import neostudy.deal.dto.enums.EmploymentPosition;
-import neostudy.deal.dto.enums.EmploymentStatus;
-import neostudy.deal.dto.enums.Gender;
-import neostudy.deal.dto.enums.MaritalStatus;
+import neostudy.deal.dto.*;
+import neostudy.deal.dto.EmploymentPosition;
 import neostudy.deal.entity.Client;
 import neostudy.deal.entity.Employment;
 import neostudy.deal.entity.Passport;
+import neostudy.deal.exceptions.UniqueConstraintViolationException;
 import neostudy.deal.mapper.ClientMapper;
 import neostudy.deal.repository.ClientRepository;
 import org.instancio.Instancio;
@@ -17,7 +13,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
@@ -31,12 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 class ClientServiceImplTest {
 
-    private static ClientServiceImpl clientService;
+    static ClientServiceImpl clientService;
 
-    private static final Client existedClient = Instancio.create(Client.class);
+    static final Client existedClient = Instancio.create(Client.class);
+
+    static ClientRepository clientRepository;
 
     @BeforeAll
-    static void init(@Mock ClientRepository clientRepository) {
+    static void init() {
+        clientRepository = Mockito.mock(ClientRepository.class);
         ModelMapper modelMapper = new ModelMapper();
         ClientMapper mapper = Mappers.getMapper(ClientMapper.class);
         existedClient.getPassport().setSeries("0000");
@@ -48,12 +46,12 @@ class ClientServiceImplTest {
     }
 
     @Test
-    void mapLoanRequestToClient() {
+    void createClientForLoanRequest() {
         LoanApplicationRequestDTO request = Instancio.create(LoanApplicationRequestDTO.class);
         request.setPassportNumber(existedClient.getPassport().getNumber());
         request.setPassportSeries(existedClient.getPassport().getSeries());
 
-        Client client = clientService.mapLoanRequestToClient(request);
+        Client client = clientService.createClientForLoanRequest(request);
 
         assertEquals(existedClient.getId(), client.getId());
         assertEquals(request.getBirthdate(), client.getBirthdate());
@@ -64,7 +62,7 @@ class ClientServiceImplTest {
 
         request = Instancio.create(LoanApplicationRequestDTO.class);
         request.setPassportSeries("1111");
-        client = clientService.mapLoanRequestToClient(request);
+        client = clientService.createClientForLoanRequest(request);
 
         assertNull(client.getId());
         assertEquals(request.getBirthdate(), client.getBirthdate());
@@ -85,15 +83,15 @@ class ClientServiceImplTest {
         employmentDTO.setWorkExperienceCurrent(50);
         employmentDTO.setWorkExperienceTotal(100);
 
-        FinishRegistrationRequestDTO request = FinishRegistrationRequestDTO.builder()
-                .gender(Gender.MALE)
-                .maritalStatus(MaritalStatus.MARRIED)
-                .account("1234567890")
-                .dependentAmount(1)
-                .passportIssueBranch("Branch")
-                .passportIssueDate(LocalDate.now())
-                .employmentDTO(employmentDTO)
-                .build();
+        FinishRegistrationRequestDTO request = new FinishRegistrationRequestDTO();
+        request.setGender(Gender.MALE);
+        request.setMaritalStatus(MaritalStatus.MARRIED);
+        request.setAccount("1234567890");
+        request.setDependentAmount(1);
+        request.setPassportIssueBranch("Branch");
+        request.setPassportIssueDate(LocalDate.now());
+        request.setEmploymentDTO(employmentDTO);
+
 
         Passport passport = new Passport();
         passport.setSeries("1111");
@@ -125,5 +123,13 @@ class ClientServiceImplTest {
         assertEquals(employmentDTO.getStatus(), employment.getStatus());
         assertEquals(employmentDTO.getEmploymentPosition(), employment.getEmploymentPosition());
         assertEquals(employmentDTO.getEmployerINN(), employment.getINN());
+
+
+        Mockito.when(clientRepository.existsClientByAccount(client.getAccount())).thenReturn(true);
+        assertThrows(UniqueConstraintViolationException.class, () -> clientService.addInfoToClient(client, request));
+
+        Mockito.when(clientRepository.existsClientByAccount(client.getAccount())).thenReturn(false);
+        Mockito.when(clientRepository.existsClientByEmploymentINN(client.getEmployment().getINN())).thenReturn(true);
+        assertThrows(UniqueConstraintViolationException.class, () -> clientService.addInfoToClient(client, request));
     }
 }

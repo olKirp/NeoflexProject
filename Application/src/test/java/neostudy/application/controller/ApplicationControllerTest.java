@@ -63,14 +63,7 @@ class ApplicationControllerTest {
 
     @Test
     void receiveIncorrectLoanOffers_thenReturnError() throws Exception {
-        LoanApplicationRequestDTO loanRequest = new LoanApplicationRequestDTO(new BigDecimal(10), 10, "Name", "LastName", "MiddleName", "correct@mail.ru", LocalDate.now().plusMonths(1), "1111", "222222");
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/application")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(loanRequest)))
-                .andExpect(status().isBadRequest());
-
-        loanRequest.setBirthdate(LocalDate.now().minusYears(40));
+        LoanApplicationRequestDTO loanRequest = new LoanApplicationRequestDTO(new BigDecimal(10), 10, "Name", "LastName", "MiddleName", "correct@mail.ru", LocalDate.now().minusYears(40), "1111", "222222");
 
         Mockito.doThrow(new IllegalArgumentException("Incorrect request")).when(applicationService).createLoanOffers(loanRequest);
 

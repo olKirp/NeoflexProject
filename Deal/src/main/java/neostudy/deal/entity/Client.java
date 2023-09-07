@@ -3,8 +3,8 @@ package neostudy.deal.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import neostudy.deal.dto.enums.Gender;
-import neostudy.deal.dto.enums.MaritalStatus;
+import neostudy.deal.dto.Gender;
+import neostudy.deal.dto.MaritalStatus;
 
 import java.time.LocalDate;
 
@@ -12,7 +12,8 @@ import java.time.LocalDate;
 @Entity
 @Builder
 @Table(name = "client",
-        uniqueConstraints = { @UniqueConstraint(name = "unique_account", columnNames = { "account" }) })
+        uniqueConstraints = { @UniqueConstraint(name = "unique_account", columnNames = { "account" }),
+                @UniqueConstraint(name = "unique_email", columnNames = { "email" })})
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = { "application"})

@@ -3,14 +3,15 @@ package neostudy.deal.service;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.*;
-import neostudy.deal.dto.enums.ApplicationStatus;
+import neostudy.deal.dto.ApplicationStatus;
 import neostudy.deal.dto.enums.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 import neostudy.deal.entity.Credit;
-import neostudy.deal.exceptions.ApplicationAlreadyApprovedException;
+import neostudy.deal.exceptions.IncorrectApplicationStatusException;
 import neostudy.deal.exceptions.CreditConveyorDeniedException;
 import neostudy.deal.exceptions.NotFoundException;
+import neostudy.deal.exceptions.UniqueConstraintViolationException;
 import neostudy.deal.feignclient.ConveyorAPIClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -31,20 +32,37 @@ public class DealServiceImpl implements DealService {
 
     private final ConveyorAPIClient conveyorAPIClient;
 
-    public List<LoanOfferDTO> getLoanOffers(LoanApplicationRequestDTO loanRequest) {
-        Client client = clientService.findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
-        if (client != null && applicationService.checkIfAppliedOfferExists(client.getApplication())) {
-            throw new ApplicationAlreadyApprovedException("Client with id " + client.getId() + " already approved application. Application cannot be changed");
-        }
+    private final KafkaMessageSenderService msgSender;
+
+    public void sendMessage(Long applicationId, Theme theme) {
+        Application application = applicationService.getApplicationById(applicationId);
+        msgSender.sendMessage(application.getClient().getEmail(), theme, applicationId);
+    }
+
+    public List<LoanOfferDTO> createLoanOffera(LoanApplicationRequestDTO loanRequest) {
+        checkLoanOffer(loanRequest);
+
+        Application application = applicationService.createApplicationForClient(clientService.createClientForLoanRequest(loanRequest));
+        application.setId(applicationService.saveApplication(application));
 
         List<LoanOfferDTO> offers = getLoanOffersFromConveyor(loanRequest);
-
-        Application application = createApplicationAndClientForLoanRequest(loanRequest);
-        applicationService.setApplicationStatus(application, ApplicationStatus.PREAPPROVAL, ChangeType.AUTOMATIC);
-        application = applicationService.saveApplication(application);
         setApplicationIdToOffers(offers, application.getId());
 
         return offers;
+    }
+
+    private void checkLoanOffer(LoanApplicationRequestDTO loanRequest) {
+        Client client = clientService.findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
+        if (client != null) {
+            if (applicationService.checkIfAppliedOfferExists(client.getApplication())) {
+                throw new IncorrectApplicationStatusException("Client with passport " + client.getPassport().getSeries() + " " + client.getPassport().getNumber() + " already exists and approved application. Application cannot be changed");
+            }
+            if (!clientService.getClientIdByEmail(loanRequest.getEmail()).equals(client.getId())) {
+                throw new UniqueConstraintViolationException("Another client has email " + loanRequest.getEmail());
+            }
+        } else if (clientService.existsClientByEmail(loanRequest.getEmail())) {
+            throw new UniqueConstraintViolationException("Another client has email " + loanRequest.getEmail());
+        }
     }
 
     private List<LoanOfferDTO> getLoanOffersFromConveyor(LoanApplicationRequestDTO loanRequest) {
@@ -71,7 +89,7 @@ public class DealServiceImpl implements DealService {
         Application application = applicationService.getApplicationById(appliedOffer.getApplicationId());
 
         if (applicationService.isApplicationApprovedByConveyor(application)) {
-            throw new ApplicationAlreadyApprovedException("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed");
+            throw new IncorrectApplicationStatusException("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed");
         }
 
         applicationService.setLoanOfferToApplication(application, appliedOffer);
@@ -82,22 +100,28 @@ public class DealServiceImpl implements DealService {
         return applicationService.getApplicationById(applicationId);
     }
 
-    private Application createApplicationAndClientForLoanRequest(LoanApplicationRequestDTO loanRequest) {
-        Client client = clientService.createClientForLoanRequest(loanRequest);
-        clientService.saveClient(client);
-        return applicationService.createApplicationForClient(client);
+    private void checkApplication(Application application) {
+        if (!applicationService.checkIfAppliedOfferExists(application)) {
+            throw new NotFoundException("No applied offers for application " + application.getId());
+        } else if (applicationService.isApplicationApprovedByConveyor(application)) {
+            throw new IncorrectApplicationStatusException("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed");
+        }
     }
 
     public void createCreditForApplication(FinishRegistrationRequestDTO registrationRequest, Long applicationId) {
         Application application = findApplicationById(applicationId);
-        if (!applicationService.checkIfAppliedOfferExists(application)) {
-            throw new NotFoundException("No applied offers for application " + application.getId());
-        } else if (applicationService.isApplicationApprovedByConveyor(application)) {
-            throw new ApplicationAlreadyApprovedException("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed");
-        }
+        checkApplication(application);
 
         addInfoToClient(application.getClient(), registrationRequest);
 
+        Credit credit = creditService.createCreditFromCreditDTO(getCreditFromConveyor(registrationRequest, application));
+
+        application.setCredit(credit);
+        applicationService.setApplicationStatus(application, ApplicationStatus.CC_APPROVED, ChangeType.AUTOMATIC);
+        applicationService.saveApplication(application);
+    }
+
+    private CreditDTO getCreditFromConveyor(FinishRegistrationRequestDTO registrationRequest, Application application) {
         ResponseEntity<CreditDTO> entity;
         try {
             entity = conveyorAPIClient.createCredit(mapToScoringData(registrationRequest, application));
@@ -105,17 +129,13 @@ public class DealServiceImpl implements DealService {
             if (e.status() == 400) {
                 applicationService.setApplicationStatus(application, ApplicationStatus.CC_DENIED, ChangeType.AUTOMATIC);
                 applicationService.saveApplication(application);
+                msgSender.sendMessage(application.getClient().getEmail(), Theme.APPLICATION_DENIED, application.getId());
                 throw new CreditConveyorDeniedException(e.contentUTF8());
             } else {
                 throw e;
             }
         }
-
-        Credit credit = creditService.createCreditFromCreditDTO(entity.getBody());
-
-        application.setCredit(credit);
-        applicationService.setApplicationStatus(application, ApplicationStatus.CC_APPROVED, ChangeType.AUTOMATIC);
-        applicationService.saveApplication(application);
+        return entity.getBody();
     }
 
     private void addInfoToClient(Client client, FinishRegistrationRequestDTO registrationRequest) {
@@ -125,5 +145,11 @@ public class DealServiceImpl implements DealService {
 
     private ScoringDataDTO mapToScoringData(FinishRegistrationRequestDTO request, Application application) {
         return finishRegistrationService.mapToScoringData(request, application.getClient(), application);
+    }
+
+    public void setApplicationStatus(Long appId, ApplicationStatus status, ChangeType type) {
+        Application application = applicationService.getApplicationById(appId);
+        applicationService.setApplicationStatus(application, status, type);
+        applicationService.saveApplication(application);
     }
 }

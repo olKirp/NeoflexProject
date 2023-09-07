@@ -21,7 +21,7 @@ public class DealConfiguration {
     }
 
     @Bean
-    public ScoringDataDTOMapper ScoringDataDTOMapper() {
+    public ScoringDataDTOMapper scoringDataDTOMapper() {
         return Mappers.getMapper(ScoringDataDTOMapper.class);
     }
 }

@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import neostudy.deal.dto.enums.ApplicationStatus;
+import neostudy.deal.dto.ApplicationStatus;
 import neostudy.deal.dto.enums.ChangeType;
 
 import java.time.LocalDateTime;

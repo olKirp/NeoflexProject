@@ -3,11 +3,10 @@ package neostudy.deal.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import neostudy.deal.dto.LoanOfferDTO;
-import neostudy.deal.dto.enums.ApplicationStatus;
+import neostudy.deal.dto.ApplicationStatus;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.hibernate.type.SqlTypes;
 
@@ -17,7 +16,7 @@ import org.hibernate.type.SqlTypes;
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
-@ToString(exclude = { "client"})
+@ToString(exclude = { "client", "credit"})
 public class Application {
 
     @Id

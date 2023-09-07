@@ -1,11 +1,10 @@
 package neostudy.deal.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
 import neostudy.deal.dto.LoanApplicationRequestDTO;
 import neostudy.deal.dto.LoanOfferDTO;
-import neostudy.deal.exceptions.ApplicationAlreadyApprovedException;
+import neostudy.deal.exceptions.IncorrectApplicationStatusException;
 import neostudy.deal.exceptions.CreditConveyorDeniedException;
 import neostudy.deal.exceptions.NotFoundException;
 import neostudy.deal.service.*;
@@ -55,7 +54,7 @@ class DealControllerTest {
     @Test
     void saveLoanOffer() throws Exception {
         LoanOfferDTO offer = new LoanOfferDTO();
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/offer")
+        mockMvc.perform(MockMvcRequestBuilders.put("/deal/offer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isBadRequest());
@@ -69,33 +68,31 @@ class DealControllerTest {
         offer.setMonthlyPayment(new BigDecimal(12000));
         offer.setTerm(10);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/offer")
+        mockMvc.perform(MockMvcRequestBuilders.put("/deal/offer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isOk());
 
         Mockito.doThrow(new NotFoundException("Application not found")).when(dealService).approveLoanOffer(offer);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/offer")
+        mockMvc.perform(MockMvcRequestBuilders.put("/deal/offer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isNotFound());
 
-        Mockito.doThrow(new ApplicationAlreadyApprovedException("Application already approved")).when(dealService).approveLoanOffer(offer);
+        Mockito.doThrow(new IncorrectApplicationStatusException("Application already approved")).when(dealService).approveLoanOffer(offer);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/offer")
+        mockMvc.perform(MockMvcRequestBuilders.put("/deal/offer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(offer)))
                 .andExpect(status().isConflict());
-
-
     }
 
     @Test
     void createCredit() throws Exception {
         FinishRegistrationRequestDTO registrationRequest = Instancio.create(FinishRegistrationRequestDTO.class);
         registrationRequest.setDependentAmount(-1);
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/calculate/1")
+        mockMvc.perform(MockMvcRequestBuilders.put("/deal/calculate/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isBadRequest());
@@ -104,19 +101,19 @@ class DealControllerTest {
         registrationRequest.setAccount("0123456789");
         registrationRequest.setPassportIssueDate(LocalDate.now().minusMonths(1));
         registrationRequest.getEmploymentDTO().setEmployerINN("123456789098");
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/calculate/1")
+        mockMvc.perform(MockMvcRequestBuilders.put("/deal/calculate/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isOk());
 
-        Mockito.doThrow(new ApplicationAlreadyApprovedException("Application already approved")).when(dealService).createCreditForApplication(registrationRequest, 1L);
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/calculate/1")
+        Mockito.doThrow(new IncorrectApplicationStatusException("Application already approved")).when(dealService).createCreditForApplication(registrationRequest, 1L);
+        mockMvc.perform(MockMvcRequestBuilders.put("/deal/calculate/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isConflict());
 
         Mockito.doThrow(new CreditConveyorDeniedException("Credit conveyor exception")).when(dealService).createCreditForApplication(registrationRequest, 1L);
-        mockMvc.perform(MockMvcRequestBuilders.post("/deal/calculate/1")
+        mockMvc.perform(MockMvcRequestBuilders.put("/deal/calculate/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isOk());

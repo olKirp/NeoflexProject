@@ -1,14 +1,11 @@
 package neostudy.conveyor.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import neostudy.conveyor.dto.EmploymentDTO;
-import neostudy.conveyor.dto.LoanApplicationRequestDTO;
-import neostudy.conveyor.dto.ScoringDataDTO;
-import neostudy.conveyor.dto.enums.Gender;
-import neostudy.conveyor.dto.enums.MaritalStatus;
+import neostudy.conveyor.dto.*;
 import neostudy.conveyor.handler.ConveyorControllerExceptionHandler;
 import neostudy.conveyor.service.LoanOffersService;
 import neostudy.conveyor.service.ScoringService;
+import org.instancio.Instancio;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,10 +61,15 @@ class ConveyorControllerTest {
 
     @Test
     void createCredit() throws Exception {
-        ScoringDataDTO scoringDataDTO = new ScoringDataDTO();
+        ScoringDataDTO scoringDataDTO = Instancio.create(ScoringDataDTO.class);
         EmploymentDTO employmentDTO = new EmploymentDTO();
+
         employmentDTO.setEmployerINN("123456789012");
         employmentDTO.setSalary(new BigDecimal("50000.00"));
+        employmentDTO.setEmploymentPosition(EmploymentPosition.OWNER);
+        employmentDTO.setWorkExperienceTotal(12);
+        employmentDTO.setWorkExperienceCurrent(32);
+        employmentDTO.setStatus(EmploymentStatus.EMPLOYED);
 
         scoringDataDTO.setFirstName("Name");
         scoringDataDTO.setLastName("Lastname");

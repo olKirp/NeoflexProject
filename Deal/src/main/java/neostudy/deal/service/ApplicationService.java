@@ -1,7 +1,7 @@
 package neostudy.deal.service;
 
 import neostudy.deal.dto.LoanOfferDTO;
-import neostudy.deal.dto.enums.ApplicationStatus;
+import neostudy.deal.dto.ApplicationStatus;
 import neostudy.deal.dto.enums.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
@@ -18,7 +18,7 @@ public interface ApplicationService {
 
     boolean isApplicationExists(Long id);
 
-    Application saveApplication(Application application);
+    Long saveApplication(Application application);
 
     void setLoanOfferToApplication(Application application, LoanOfferDTO appliedOffer);
 

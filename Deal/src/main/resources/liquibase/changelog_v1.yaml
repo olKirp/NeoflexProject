@@ -340,4 +340,11 @@ databaseChangeLog:
         referencedColumnNames: id
         referencedTableName: passport
         validate: true
-
+- changeSet:
+      id: 1692463822345-17
+      author: olkir
+      changes:
+          - addUniqueConstraint:
+                columnNames: email
+                constraintName: unique_email
+                tableName: client

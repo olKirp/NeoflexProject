@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import neostudy.deal.dto.enums.EmploymentStatus;
-import neostudy.deal.dto.enums.EmploymentPosition;
+import neostudy.deal.dto.EmploymentStatus;
+import neostudy.deal.dto.EmploymentPosition;
 
 import java.math.BigDecimal;
 

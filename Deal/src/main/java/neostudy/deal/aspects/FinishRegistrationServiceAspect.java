@@ -1,9 +1,7 @@
 package neostudy.deal.aspects;
 
 import lombok.extern.log4j.Log4j2;
-import neostudy.deal.dto.ScoringDataDTO;
 import neostudy.deal.entity.Application;
-import neostudy.deal.entity.Client;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

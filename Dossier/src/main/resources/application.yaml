@@ -1,0 +1,48 @@
+server:
+    port: 8085
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: Dossier
+  mail:
+      host: smtp.yandex.ru
+      port: 465
+      username: conveyor.project@yandex.ru
+      password: vbrldbalpspiezvl
+      protocol: smtps
+      properties:
+          mail:
+              smtps:
+                  timeout: 5000
+                  debug: true
+  cloud:
+      openfeign:
+          client:
+              config:
+                  deal:
+                      url: http://localhost:8081/
+  kafka:
+      bootstrap-servers: localhost:29092
+      listener:
+          ack-mode: record
+      consumer:
+          group-id: ${spring.application.name}
+          autoOffsetReset: earliest
+          keyDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+          valueDeserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+          spring:
+              json:
+                  trusted:
+                      packages: neostudy.dossier.dto
+                  value:
+                      default:
+                         type: neostudy.dossier.dto.EmailMessageDTO
+links:
+    signDocuments: http://localhost:8081/swagger-ui/index.html#/documents-controller/signDocuments
+    sendDocuments: http://localhost:8081/swagger-ui/index.html#/documents-controller/sendDocuments
+    signDocumentsRequest: http://localhost:8081/swagger-ui/index.html#/documents-controller/signDocumentsRequest
+    finishRegistration: http://localhost:8081/swagger-ui/index.html#/deal-controller/createCredit
+documents:
+    path: ./documents/

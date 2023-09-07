@@ -4,10 +4,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import neostudy.conveyor.dto.EmploymentDTO;
-import neostudy.conveyor.dto.ScoringDataDTO;
-import neostudy.conveyor.dto.enums.Gender;
-import neostudy.conveyor.dto.enums.MaritalStatus;
+import neostudy.conveyor.dto.*;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,11 +43,14 @@ public class ScoringDataValidationTest {
 
     @BeforeEach
     void createScoringDataDTO () {
-        scoringDataDTO = new ScoringDataDTO();
+        scoringDataDTO = Instancio.create(ScoringDataDTO.class);
         employmentDTO = new EmploymentDTO();
         employmentDTO.setEmployerINN("123456789012");
         employmentDTO.setSalary(new BigDecimal("50000.00"));
-
+        employmentDTO.setEmploymentPosition(EmploymentPosition.OWNER);
+        employmentDTO.setWorkExperienceTotal(12);
+        employmentDTO.setWorkExperienceCurrent(32);
+        employmentDTO.setStatus(EmploymentStatus.EMPLOYED);
 
         scoringDataDTO.setFirstName("Name");
         scoringDataDTO.setLastName("Lastname");
@@ -90,8 +91,12 @@ public class ScoringDataValidationTest {
 
     @Test
     void givenCorrectScoringDataDTO_thenReturnNoViolations() {
+        System.out.println("scoringDataDTO " + scoringDataDTO);
         Set<ConstraintViolation<ScoringDataDTO>> violations = validator.validate(scoringDataDTO);
 
+        for(ConstraintViolation v : violations) {
+            System.out.println(v.getMessage());
+        }
         assertTrue(violations.isEmpty());
     }
 

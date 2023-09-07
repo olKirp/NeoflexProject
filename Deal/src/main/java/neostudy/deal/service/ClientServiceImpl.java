@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
 import neostudy.deal.dto.LoanApplicationRequestDTO;
 import neostudy.deal.entity.Client;
+import neostudy.deal.exceptions.UniqueConstraintViolationException;
 import neostudy.deal.mapper.ClientMapper;
 import neostudy.deal.repository.ClientRepository;
 import org.modelmapper.ModelMapper;
@@ -18,13 +19,6 @@ public class ClientServiceImpl implements ClientService {
     private final ClientMapper clientMapper;
 
     private final ModelMapper modelMapper;
-
-    public Client mapLoanRequestToClient(LoanApplicationRequestDTO loanRequest) {
-        if (clientRepository.existsClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber())) {
-            return updateClient(loanRequest);
-        }
-        return modelMapper.map(loanRequest, Client.class);
-    }
 
     public Client saveClient(Client client) {
         return clientRepository.save(client);
@@ -41,10 +35,27 @@ public class ClientServiceImpl implements ClientService {
     }
 
     public void addInfoToClient(Client client, FinishRegistrationRequestDTO registrationRequest) {
+        if (clientRepository.existsClientByAccount(registrationRequest.getAccount())) {
+            throw new UniqueConstraintViolationException("Client with account " + registrationRequest.getAccount() + " already exists");
+        } else if (clientRepository.existsClientByEmploymentINN(registrationRequest.getEmploymentDTO().getEmployerINN())) {
+            throw new UniqueConstraintViolationException("Client with INN " + registrationRequest.getEmploymentDTO().getEmployerINN() + " already exists");
+        }
+
         clientMapper.updateClientFromFinishRegistrationRequest(registrationRequest, client);
     }
 
     public Client createClientForLoanRequest(LoanApplicationRequestDTO loanRequest) {
-        return mapLoanRequestToClient(loanRequest);
+        if (clientRepository.existsClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber())) {
+            return updateClient(loanRequest);
+        }
+        return modelMapper.map(loanRequest, Client.class);
+    }
+
+    public boolean existsClientByEmail(String email) {
+        return clientRepository.existsClientByEmail(email);
+    }
+
+    public Long getClientIdByEmail(String email) {
+        return clientRepository.findClientByEmail(email).getId();
     }
 }

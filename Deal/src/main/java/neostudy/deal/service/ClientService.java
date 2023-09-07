@@ -14,4 +14,7 @@ public interface ClientService {
 
     Client findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
 
+    boolean existsClientByEmail(String email);
+
+    Long getClientIdByEmail(String email);
 }

@@ -37,6 +37,9 @@ public class LoanOffersServiceImpl implements LoanOffersService {
     private BigDecimal minimalRate;
 
     public List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO loanRequest) {
+        if (loanRequest == null) {
+            throw new IllegalArgumentException("LoanApplicationRequestDTO is null");
+        }
         List<LoanOfferDTO> offers = new ArrayList<>();
         offers.add(createLoanOffer(loanRequest, true, true));
         offers.add(createLoanOffer(loanRequest, false, false));

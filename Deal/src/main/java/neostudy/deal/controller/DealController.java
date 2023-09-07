@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
 import neostudy.deal.dto.LoanApplicationRequestDTO;
 import neostudy.deal.dto.LoanOfferDTO;
+import neostudy.deal.dto.Theme;
 import neostudy.deal.service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +29,13 @@ public class DealController {
             @ApiResponse(responseCode = "200", description = "CreditDTO successfully created or the application was rejected, but LoanApplicationRequestDTO was valid"),
             @ApiResponse(responseCode = "400", description = "LoanApplicationRequestDTO is not valid"),
             @ApiResponse(responseCode = "500", description = "Conveyor server unavailable or internal server error occured"),
-            @ApiResponse(responseCode = "409", description = "Client has approved application and application cannot be changed")})
+            @ApiResponse(responseCode = "409", description = "Client with same passport or email already exists or client's application cannot be changed")})
     public ResponseEntity<List<LoanOfferDTO>> createLoanOffers(@Valid @RequestBody LoanApplicationRequestDTO loanRequest) {
-        List<LoanOfferDTO> offers = dealService.getLoanOffers(loanRequest);
+        List<LoanOfferDTO> offers = dealService.createLoanOffera(loanRequest);
         return ResponseEntity.ok(offers);
     }
 
-    @PostMapping("/deal/offer")
+    @PutMapping("/deal/offer")
     @ResponseStatus(value = HttpStatus.OK)
     @Operation(summary = "Select loan offer", description = "Receives offer selected by user and save it to database")
     @ApiResponses(value = {
@@ -44,9 +45,10 @@ public class DealController {
             @ApiResponse(responseCode = "409", description = "The application has already been approved and cannot be changed")})
     public void saveLoanOffer(@Valid @RequestBody LoanOfferDTO appliedOffer) {
         dealService.approveLoanOffer(appliedOffer);
+        dealService.sendMessage(appliedOffer.getApplicationId(), Theme.FINISH_REGISTRATION);
     }
 
-    @PostMapping("/deal/calculate/{applicationId}")
+    @PutMapping("/deal/calculate/{applicationId}")
     @ResponseStatus(value = HttpStatus.OK)
     @Operation(summary = "Create CreditDTO",
             description = "Receives finish registration request and ID of application which was created earlier, than creates CreditDTO and saves it to database")
@@ -54,7 +56,7 @@ public class DealController {
             @ApiResponse(responseCode = "200", description = "CreditDTO successfully created or the application was rejected, but user's data was valid"),
             @ApiResponse(responseCode = "400", description = "FinishRegistrationRequestDTO is not valid"),
             @ApiResponse(responseCode = "404", description = "Application not found"),
-            @ApiResponse(responseCode = "409", description = "The application has already been approved and cannot be changed"),
+            @ApiResponse(responseCode = "409", description = "Application cannot be changed or client with same INN or account number already exists"),
             @ApiResponse(responseCode = "500", description = "Conveyor server unavailable or internal server error occured")})
     public void createCredit(@Valid @RequestBody FinishRegistrationRequestDTO registrationRequest,
                              @Parameter(name = "applicationId",
@@ -63,5 +65,6 @@ public class DealController {
                                      required = true)
                              @PathVariable("applicationId") Long applicationId) {
         dealService.createCreditForApplication(registrationRequest, applicationId);
+        dealService.sendMessage(applicationId, Theme.CREATE_DOCUMENTS);
     }
 }

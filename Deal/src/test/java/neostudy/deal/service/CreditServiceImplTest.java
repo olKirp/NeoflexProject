@@ -3,6 +3,7 @@ package neostudy.deal.service;
 import neostudy.deal.dto.CreditDTO;
 import neostudy.deal.dto.enums.CreditStatus;
 import neostudy.deal.entity.Credit;
+import neostudy.deal.entity.PaymentScheduleElement;
 import neostudy.deal.repository.CreditRepository;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +13,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +35,14 @@ class CreditServiceImplTest {
     @Test
     void createCreditFromCreditDTO() {
         CreditDTO creditDTO = Instancio.create(CreditDTO.class);
+        ModelMapper mapper = new ModelMapper();
+        List<PaymentScheduleElement> element = new ArrayList<>();
+        for (int i = 0; i < creditDTO.getPaymentSchedule().size(); i++) {
+            element.add(mapper.map(creditDTO.getPaymentSchedule().get(i), PaymentScheduleElement.class));
+        }
+
+        mapper.map(creditDTO.getPaymentSchedule(), element);
+
 
         Credit credit = creditService.createCreditFromCreditDTO(creditDTO);
 
@@ -40,7 +52,7 @@ class CreditServiceImplTest {
         assertEquals(creditDTO.getIsSalaryClient(), credit.getIsSalaryClient());
         assertEquals(creditDTO.getPsk(), credit.getPsk());
         assertEquals(creditDTO.getRate(), credit.getRate());
-        assertEquals(creditDTO.getPaymentSchedule(), credit.getPaymentSchedule());
+        assertEquals(element, credit.getPaymentSchedule());
         assertEquals(creditDTO.getMonthlyPayment(), credit.getMonthlyPayment());
         assertEquals(CreditStatus.CALCULATED, credit.getCreditStatus());
     }

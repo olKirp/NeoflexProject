@@ -1,0 +1,43 @@
+server:
+    port: 8085
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: Dossier
+  mail:
+    password: springboot
+    username: duke
+    host: 127.0.0.1
+    port: 3025 # default protocol port + 3000 as offset
+    protocol: smtp
+  cloud:
+      openfeign:
+          client:
+              config:
+                  deal:
+                      url: http://localhost:8081/
+  kafka:
+      bootstrap-servers: localhost:29092
+      listener:
+          ack-mode: record
+      consumer:
+          group-id: ${spring.application.name}
+          autoOffsetReset: earliest
+          keyDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+          valueDeserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+          spring:
+              json:
+                  trusted:
+                      packages: neostudy.dossier.dto
+                  value:
+                      default:
+                         type: neostudy.dossier.dto.EmailMessageDTO
+links:
+    signDocuments: http://localhost:8081/swagger-ui/index.html#/documents-controller/signDocuments
+    sendDocuments: http://localhost:8081/swagger-ui/index.html#/documents-controller/sendDocuments
+    signDocumentsRequest: http://localhost:8081/swagger-ui/index.html#/documents-controller/signDocumentsRequest
+    finishRegistration: http://localhost:8081/swagger-ui/index.html#/deal-controller/createCredit
+documents:
+    path: ./documents/

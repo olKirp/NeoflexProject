@@ -2,7 +2,7 @@ package neostudy.deal.service;
 
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.LoanOfferDTO;
-import neostudy.deal.dto.enums.ApplicationStatus;
+import neostudy.deal.dto.ApplicationStatus;
 import neostudy.deal.dto.enums.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
-import static neostudy.deal.dto.enums.ApplicationStatus.PREAPPROVAL;
+import static neostudy.deal.dto.ApplicationStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     public void setLoanOfferToApplication(Application application, LoanOfferDTO appliedOffer) {
         application.setAppliedOffer(appliedOffer);
-        setApplicationStatus(application, ApplicationStatus.APPROVED, ChangeType.AUTOMATIC);
+        setApplicationStatus(application, APPROVED, ChangeType.AUTOMATIC);
     }
 
     public boolean isApplicationExists(Long id) {
@@ -46,8 +47,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationRepository.existsApplicationByClientId(id);
     }
 
-    public Application saveApplication(Application application) {
-        return applicationRepository.save(application);
+    public Long saveApplication(Application application) {
+        return applicationRepository.save(application).getId();
     }
 
     public Application getApplicationById(Long applicationId) {
@@ -78,9 +79,16 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .client(client)
                     .creationDate(LocalDate.now())
                     .status(PREAPPROVAL)
-                    .signDate(LocalDate.now())
+                    .sesCode(generateSesCode())
+                    .statusHistory(new StatusHistory(PREAPPROVAL, LocalDateTime.now(), ChangeType.AUTOMATIC))
                     .build();
+
         }
         return application;
+    }
+
+    private String generateSesCode() {
+        int randomInt = ThreadLocalRandom.current().nextInt(1000, 10000);
+        return String.valueOf(randomInt);
     }
 }

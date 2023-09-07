@@ -1,7 +1,6 @@
 package neostudy.deal.aspects;
 
 import lombok.extern.log4j.Log4j2;
-import neostudy.deal.dto.enums.ApplicationStatus;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -26,7 +25,7 @@ public class ApplicationServiceAspect {
     public Object saveApplication(ProceedingJoinPoint point) throws Throwable {
         log.info("Save application to DB: " + point.getArgs()[0]);
         Object o = point.proceed();
-        log.info("Application was saved with id " + ((Application) o).getId());
+        log.info("Application was saved with id " + o);
         return o;
     }
 
