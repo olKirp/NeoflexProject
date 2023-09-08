@@ -13,6 +13,7 @@ import neostudy.dossier.services.DocumentsGeneratorService;
 import neostudy.dossier.services.MailCreatorService;
 import neostudy.dossier.services.MailSenderService;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -55,6 +56,9 @@ public class Listener {
             apiClient.setApplicationStatus(message.getApplicationId(), ApplicationStatus.DOCUMENTS_CREATED);
         } catch (IOException exception) {
             log.error("Exception during documents generation: " + exception.getMessage());
+        } catch (MailSendException exception) {
+            log.error("Mail sendException: " + exception.getMessage());
+            apiClient.setApplicationStatus(message.getApplicationId(), ApplicationStatus.CC_APPROVED);
         } catch (DealMicroserviceException ignored) {
         }
     }
