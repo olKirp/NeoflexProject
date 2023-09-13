@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 @Log4j2
 @Aspect
 @Configuration
@@ -23,4 +25,15 @@ public class AdminControllerAspect {
         }
         return o;
     }
+    @Around("execution(* neostudy.deal.controller.AdminController.getApplications(..))")
+    public Object getApplications(ProceedingJoinPoint point) throws Throwable {
+        log.info("Received request for getting all applications");
+
+        ResponseEntity<List<ApplicationDTO>> o = (ResponseEntity<List<ApplicationDTO>>) point.proceed();
+        if (o.getStatusCode() == HttpStatusCode.valueOf(200)) {
+            log.info("Number of returned applications: " + o.getBody().size());
+        }
+        return o;
+    }
+
 }

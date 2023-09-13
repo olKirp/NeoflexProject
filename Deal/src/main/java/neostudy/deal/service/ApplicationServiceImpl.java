@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -68,6 +69,11 @@ public class ApplicationServiceImpl implements ApplicationService {
                 || application.getStatus() == ApplicationStatus.APPROVED
                 || application.getStatus() == ApplicationStatus.CLIENT_DENIED
                 || application.getStatus() == ApplicationStatus.CC_DENIED);
+    }
+
+    @Override
+    public List<Application> getApplications() {
+        return applicationRepository.findAll();
     }
 
     public Application createApplicationForClient(Client client) {

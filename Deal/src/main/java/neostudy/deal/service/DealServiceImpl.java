@@ -57,7 +57,7 @@ public class DealServiceImpl implements DealService {
             if (applicationService.checkIfAppliedOfferExists(client.getApplication())) {
                 throw new IncorrectApplicationStatusException("Client with passport " + client.getPassport().getSeries() + " " + client.getPassport().getNumber() + " already exists and approved application. Application cannot be changed");
             }
-            if (!clientService.getClientIdByEmail(loanRequest.getEmail()).equals(client.getId())) {
+            if (clientService.existsClientByEmail(loanRequest.getEmail()) && !clientService.getClientIdByEmail(loanRequest.getEmail()).equals(client.getId())) {
                 throw new UniqueConstraintViolationException("Another client has email " + loanRequest.getEmail());
             }
         } else if (clientService.existsClientByEmail(loanRequest.getEmail())) {

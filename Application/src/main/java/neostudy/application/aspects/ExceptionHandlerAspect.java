@@ -14,7 +14,7 @@ public class ExceptionHandlerAspect {
 
     @Around("execution(* neostudy.application.exceptionshandler.ApplicationExceptionHandler.handleIllegalArgumentException(..))")
     public Object handleIllegalArgumentException(ProceedingJoinPoint point) throws Throwable {
-        log.info("Exception: " + ((Exception) point.getArgs()[0]).getMessage());
+        log.error("Exception: " + ((Exception) point.getArgs()[0]).getMessage());
         return point.proceed();
     }
 
@@ -22,9 +22,9 @@ public class ExceptionHandlerAspect {
     public Object handleFeignException(ProceedingJoinPoint point) throws Throwable {
         FeignException e = (FeignException) point.getArgs()[0];
         if (e.status() != 400 && e.status() != 409 && e.status() != 404) {
-            log.info("Feign client exception. " + e.getMessage());
+            log.error("Feign client exception. " + e.getMessage());
         } else {
-            log.info("Exception from external service: " + e.getMessage());
+            log.error("Exception from external service: " + e.getMessage());
         }
 
         return point.proceed();

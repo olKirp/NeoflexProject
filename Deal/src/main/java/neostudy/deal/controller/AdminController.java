@@ -10,9 +10,12 @@ import neostudy.deal.dto.enums.ChangeType;
 import neostudy.deal.service.ApplicationService;
 import neostudy.deal.service.DealService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +26,18 @@ public class AdminController {
     private final DealService dealService;
 
     private final ModelMapper modelMapper;
+
+    @GetMapping("/deal/admin/application")
+    @Operation(summary = "Get applications", description = "Finds all applications and returns it")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Applications successfully returned")
+    })
+    public ResponseEntity<List<ApplicationDTO>> getApplications() {
+        List<ApplicationDTO> applications = modelMapper.map(applicationService.getApplications(),
+                new TypeToken<List<ApplicationDTO>> () {}.getType());
+        return ResponseEntity.ok(applications);
+    }
+
 
     @GetMapping("/deal/admin/application/{applicationId}")
     @Operation(summary = "Get application", description = "Finds application by id and returns it")
@@ -46,5 +61,8 @@ public class AdminController {
         dealService.setApplicationStatus(applicationId, status, ChangeType.MANUAL);
         return new ResponseEntity(HttpStatus.OK);
     }
+
+
+
 
 }

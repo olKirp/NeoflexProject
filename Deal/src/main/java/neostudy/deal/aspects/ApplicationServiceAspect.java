@@ -29,6 +29,12 @@ public class ApplicationServiceAspect {
         return o;
     }
 
+    @Around("execution(* neostudy.deal.service.ApplicationService+.getApplications(..))")
+    public Object getApplications(ProceedingJoinPoint point) throws Throwable {
+        log.info("Getting all applications from DB");
+        return point.proceed();
+    }
+
     @Around("execution(* neostudy.deal.service.ApplicationService+.isApplicationExists(..))")
     public Object isApplicationExists(ProceedingJoinPoint point) throws Throwable {
         log.info("Check if application exists for application with id " + point.getArgs()[0]);

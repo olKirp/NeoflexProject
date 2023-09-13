@@ -1,0 +1,11 @@
+server:
+  port: 8085
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          application:
+            url: http://localhost:8082/
+          deal:
+            url: http://localhost:8081/

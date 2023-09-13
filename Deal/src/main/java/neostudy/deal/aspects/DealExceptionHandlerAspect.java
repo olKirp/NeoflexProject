@@ -13,7 +13,7 @@ public class DealExceptionHandlerAspect {
 
     @Around("execution(* neostudy.deal.exceptionshandler.DealExceptionHandler.*(..))")
     public Object catchException(ProceedingJoinPoint point) throws Throwable {
-        log.info("Exception: " +  ((Exception)point.getArgs()[0]).getMessage());
+        log.error("Exception: " +  ((Exception)point.getArgs()[0]).getMessage());
         return point.proceed();
     }
 }

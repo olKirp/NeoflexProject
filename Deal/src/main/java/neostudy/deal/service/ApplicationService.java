@@ -6,6 +6,8 @@ import neostudy.deal.dto.enums.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 
+import java.util.List;
+
 public interface ApplicationService {
 
     boolean checkIfAppliedOfferExists(Application application);
@@ -23,4 +25,6 @@ public interface ApplicationService {
     void setLoanOfferToApplication(Application application, LoanOfferDTO appliedOffer);
 
     boolean isApplicationApprovedByConveyor(Application application);
+
+    List<Application> getApplications();
 }
