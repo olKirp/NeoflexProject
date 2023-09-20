@@ -70,7 +70,6 @@ jobs:
           fail_ci_if_error: true
           verbose: true
 
-
       - name: Upload coverage reports to Codecov for Application
         uses: codecov/codecov-action@v3
         with:
