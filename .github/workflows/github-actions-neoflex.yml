@@ -81,10 +81,6 @@ jobs:
           fail_ci_if_error: true
           verbose: true
 
-	  - name: Analyze wConveyor
-	    working-directory: Conveyor
-	    run: chmod 777 ./mvnw
-
       - name: Analyze Conveyor
         working-directory: Conveyor
         run: ./mvnw -B verify sonar:sonar -Dsonar.projectKey=olKirp_TestCreditConveyor -Dsonar.organization=olkirp -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
