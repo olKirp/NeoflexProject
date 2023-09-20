@@ -24,61 +24,61 @@ jobs:
         working-directory: Conveyor
         run: mvn clean verify
 
-#      - name: Build Dossier
-#        working-directory: Dossier
-#        run: mvn clean verify
-#
-#      - name: Build Deal
-#        working-directory: Deal
-#        run: mvn clean verify
-#
-#      - name: Build Application
-#        working-directory: Application
-#        run: mvn clean verify
-#
-#      - name: Build Application
-#        working-directory: Gateway
-#        run: mvn clean verify
-#
-#      - name: Upload coverage reports to Codecov for Conveyor
-#        uses: codecov/codecov-action@v3
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          file: ./Conveyor/target/site/jacoco/jacoco.xml
-#          flags: unit_tests
-#          name: codecov-umbrella
-#          fail_ci_if_error: true
-#          verbose: true
-#
-#      - name: Upload coverage reports to Codecov for Dossier
-#        uses: codecov/codecov-action@v3
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          file: ./Dossier/target/site/jacoco/jacoco.xml
-#          flags: unit_tests
-#          name: codecov-umbrella
-#          fail_ci_if_error: true
-#          verbose: true
-#
-#      - name: Upload coverage reports to Codecov for Deal
-#        uses: codecov/codecov-action@v3
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          file: ./Deal/target/site/jacoco/jacoco.xml
-#          flags: unit_tests
-#          name: codecov-umbrella
-#          fail_ci_if_error: true
-#          verbose: true
-#
-#      - name: Upload coverage reports to Codecov for Application
-#        uses: codecov/codecov-action@v3
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          file: ./Application/target/site/jacoco/jacoco.xml
-#          flags: unit_tests
-#          name: codecov-umbrella
-#          fail_ci_if_error: true
-#          verbose: true
+      - name: Build Dossier
+        working-directory: Dossier
+        run: mvn clean verify
+
+      - name: Build Deal
+        working-directory: Deal
+        run: mvn clean verify
+
+      - name: Build Application
+        working-directory: Application
+        run: mvn clean verify
+
+      - name: Build Application
+        working-directory: Gateway
+        run: mvn clean verify
+
+      - name: Upload coverage reports to Codecov for Conveyor
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./Conveyor/target/site/jacoco/jacoco.xml
+          flags: unit_tests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Upload coverage reports to Codecov for Dossier
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./Dossier/target/site/jacoco/jacoco.xml
+          flags: unit_tests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Upload coverage reports to Codecov for Deal
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./Deal/target/site/jacoco/jacoco.xml
+          flags: unit_tests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Upload coverage reports to Codecov for Application
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./Application/target/site/jacoco/jacoco.xml
+          flags: unit_tests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true
 
       - name: Analyze Conveyor
         working-directory: Conveyor
