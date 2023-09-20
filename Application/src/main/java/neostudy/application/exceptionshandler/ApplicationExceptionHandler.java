@@ -22,7 +22,6 @@ public class ApplicationExceptionHandler {
                     .body(exception.contentUTF8());
         }
 
-        exception.printStackTrace();
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("External service error");
