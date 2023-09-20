@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
-import neostudy.deal.entity.PaymentScheduleElement;
-import neostudy.deal.dto.enums.CreditStatus;
+import neostudy.deal.dto.CreditStatus;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -60,6 +59,6 @@ public class Credit {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "credit", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "credit")
     private Application application;
 }

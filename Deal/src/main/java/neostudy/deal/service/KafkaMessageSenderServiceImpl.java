@@ -1,8 +1,8 @@
 package neostudy.deal.service;
 
+import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.EmailMessageDTO;
 import neostudy.deal.dto.Theme;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class KafkaMessageSenderServiceImpl implements KafkaMessageSenderService {
 
-    @Autowired
-    KafkaTemplate<String, EmailMessageDTO> kafkaTemplate;
+    private final  KafkaTemplate<String, EmailMessageDTO> kafkaTemplate;
 
     private static final Map<Theme, String> themesToTopics = new HashMap<>();
 
@@ -27,12 +27,7 @@ public class KafkaMessageSenderServiceImpl implements KafkaMessageSenderService 
     }
 
     public void sendMessage(String address, Theme theme, Long appId) {
-        EmailMessageDTO emailMessageDTO = new EmailMessageDTO();
-        emailMessageDTO.setAddress(address);
-        emailMessageDTO.setApplicationId(appId);
-        emailMessageDTO.setTheme(theme);
-
-        kafkaTemplate.send(themesToTopics.get(theme), emailMessageDTO);
+        kafkaTemplate.send(themesToTopics.get(theme), new EmailMessageDTO(address, appId, theme));
     }
 
 }

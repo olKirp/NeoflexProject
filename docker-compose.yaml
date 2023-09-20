@@ -1,23 +1,96 @@
 version: '2'
 services:
+  conveyor-server:
+    container_name: conveyor-server
+    build:
+      context: ./Conveyor
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - custom_net
+      
+  dossier-server:
+    container_name: dossier-server
+    build:
+      context: ./Dossier
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    networks:
+      - custom_net
+
+  deal-server:
+    container_name: deal-server
+    build:
+      context: ./Deal
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - deal_db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://deal_db:5432/deal_db
+    networks:
+      - custom_net
+
+  application-server:
+    container_name: application-server
+    build:
+      context: ./Application
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    networks:
+      - custom_net
+
+  gateway-server:
+    container_name: gateway-server
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"
+    networks:
+      - custom_net
+
+  deal_db:
+    image: 'postgres:13.3'
+    container_name: deal_db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=deal_db
+    ports:
+      - "5432:5432"
+    networks:
+      - custom_net
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - 22181:2181
+      - "22181:2181"
+    networks:
+      - custom_net
 
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
     ports:
-      - 29092:29092
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://kafka:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - custom_net
+networks:
+  custom_net:
+    driver: bridge

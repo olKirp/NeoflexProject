@@ -52,7 +52,7 @@ public class Client {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "client", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "client")
     private Application application;
 
     @OneToOne(cascade = CascadeType.ALL)

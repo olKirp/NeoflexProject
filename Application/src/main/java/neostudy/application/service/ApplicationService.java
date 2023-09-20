@@ -10,6 +10,6 @@ public interface ApplicationService {
 
     ResponseEntity<List<LoanOfferDTO>> createLoanOffers(LoanApplicationRequestDTO loanRequest);
 
-    void applyLoanOffer(LoanOfferDTO appliedOffer);
+    ResponseEntity<String> applyLoanOffer(LoanOfferDTO appliedOffer);
 
 }

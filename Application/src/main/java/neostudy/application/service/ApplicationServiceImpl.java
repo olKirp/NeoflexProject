@@ -23,9 +23,9 @@ public class ApplicationServiceImpl implements ApplicationService {
         return apiClient.createLoanOffers(loanRequest);
     }
 
-    public void applyLoanOffer(LoanOfferDTO appliedOffer) {
+    public ResponseEntity<String> applyLoanOffer(LoanOfferDTO appliedOffer) {
         prescoringService.validateOffer(appliedOffer);
-        apiClient.saveLoanOffer(appliedOffer);
+        return apiClient.saveLoanOffer(appliedOffer);
     }
 
 }

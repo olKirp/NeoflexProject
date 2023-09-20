@@ -17,5 +17,4 @@ public class FinishRegistrationServiceImpl implements FinishRegistrationService 
     public ScoringDataDTO mapToScoringData(FinishRegistrationRequestDTO request, Client client, Application application) {
         return scoringDataDTOMapper.from(request, client, application);
     }
-
 }

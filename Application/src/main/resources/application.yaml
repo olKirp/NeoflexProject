@@ -6,7 +6,7 @@ spring:
             client:
                 config:
                     deal:
-                        url: http://localhost:8081/
+                        url: http://deal-server:8081/
 constants:
     minAmount: 10000.00
     maxAmount: 7000000.00

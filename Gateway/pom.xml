@@ -76,6 +76,7 @@
                                 <interfaceOnly>true</interfaceOnly>
                                 <apiTests>false</apiTests>
                                 <useSpringBoot3>true</useSpringBoot3>
+                                <useTags>true</useTags>
                             </configOptions>
                             <inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yaml</inputSpec>
                             <generatorName>spring</generatorName>

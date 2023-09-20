@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,13 +41,13 @@ class ClientServiceImplTest {
         existedClient.getPassport().setSeries("0000");
         Mockito.when(clientRepository.existsClientByPassportSeriesAndPassportNumber(existedClient.getPassport().getSeries(), existedClient.getPassport().getNumber())).thenReturn(true);
 
-        Mockito.when(clientRepository.findClientByPassportSeriesAndPassportNumber(existedClient.getPassport().getSeries(), existedClient.getPassport().getNumber())).thenReturn(existedClient);
+        Mockito.when(clientRepository.findClientByPassportSeriesAndPassportNumber(existedClient.getPassport().getSeries(), existedClient.getPassport().getNumber())).thenReturn(Optional.of(existedClient));
 
         clientService = new ClientServiceImpl(clientRepository, mapper, modelMapper);
     }
 
     @Test
-    void createClientForLoanRequest() {
+    void createClientForLoanRequestIfExists() {
         LoanApplicationRequestDTO request = Instancio.create(LoanApplicationRequestDTO.class);
         request.setPassportNumber(existedClient.getPassport().getNumber());
         request.setPassportSeries(existedClient.getPassport().getSeries());
@@ -60,9 +61,14 @@ class ClientServiceImplTest {
         assertEquals(request.getLastName(), client.getLastName());
         assertEquals(request.getMiddleName(), client.getMiddleName());
 
-        request = Instancio.create(LoanApplicationRequestDTO.class);
+
+    }
+
+    @Test
+    void createClientForLoanRequestIfNotExists() {
+        LoanApplicationRequestDTO request = Instancio.create(LoanApplicationRequestDTO.class);
         request.setPassportSeries("1111");
-        client = clientService.createClientForLoanRequest(request);
+        Client client = clientService.createClientForLoanRequest(request);
 
         assertNull(client.getId());
         assertEquals(request.getBirthdate(), client.getBirthdate());
@@ -106,7 +112,7 @@ class ClientServiceImplTest {
                 .passport(passport)
                 .build();
 
-        clientService.addInfoToClient(client, request);
+        clientService.mapFinishRegistrationRequestToClient(client, request);
 
         assertEquals(request.getGender(), client.getGender());
         assertEquals(request.getMaritalStatus(), client.getMaritalStatus());
@@ -126,10 +132,10 @@ class ClientServiceImplTest {
 
 
         Mockito.when(clientRepository.existsClientByAccount(client.getAccount())).thenReturn(true);
-        assertThrows(UniqueConstraintViolationException.class, () -> clientService.addInfoToClient(client, request));
+        assertThrows(UniqueConstraintViolationException.class, () -> clientService.mapFinishRegistrationRequestToClient(client, request));
 
         Mockito.when(clientRepository.existsClientByAccount(client.getAccount())).thenReturn(false);
         Mockito.when(clientRepository.existsClientByEmploymentINN(client.getEmployment().getINN())).thenReturn(true);
-        assertThrows(UniqueConstraintViolationException.class, () -> clientService.addInfoToClient(client, request));
+        assertThrows(UniqueConstraintViolationException.class, () -> clientService.mapFinishRegistrationRequestToClient(client, request));
     }
 }

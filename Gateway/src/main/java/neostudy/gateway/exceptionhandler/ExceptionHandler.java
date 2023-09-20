@@ -12,6 +12,8 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(FeignException.class)
     public ResponseEntity<String> FeignException(FeignException exception) {
+        System.out.println(exception.request().headers());
+
         if (exception.status() == 409 || exception.status() == 404 || exception.status() == 400 || exception.status() == 500) {
             return ResponseEntity
                     .status(exception.status())

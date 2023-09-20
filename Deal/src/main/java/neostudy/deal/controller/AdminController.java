@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.ApplicationDTO;
 import neostudy.deal.dto.ApplicationStatus;
-import neostudy.deal.dto.enums.ChangeType;
+import neostudy.deal.dto.ChangeType;
+import neostudy.deal.exceptions.NotFoundException;
 import neostudy.deal.service.ApplicationService;
 import neostudy.deal.service.DealService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.openapitools.api.AdminControllerApi;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminController implements AdminControllerApi {
 
     private final ApplicationService applicationService;
 
@@ -27,42 +29,24 @@ public class AdminController {
 
     private final ModelMapper modelMapper;
 
-    @GetMapping("/deal/admin/application")
-    @Operation(summary = "Get applications", description = "Finds all applications and returns it")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Applications successfully returned")
-    })
+    @Override
     public ResponseEntity<List<ApplicationDTO>> getApplications() {
         List<ApplicationDTO> applications = modelMapper.map(applicationService.getApplications(),
-                new TypeToken<List<ApplicationDTO>> () {}.getType());
+                new TypeToken<List<ApplicationDTO>>() {
+                }.getType());
         return ResponseEntity.ok(applications);
     }
 
-
-    @GetMapping("/deal/admin/application/{applicationId}")
-    @Operation(summary = "Get application", description = "Finds application by id and returns it")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Application successfully returned"),
-            @ApiResponse(responseCode = "404", description = "Application not found")
-    })
+    @Override
     public ResponseEntity<ApplicationDTO> getApplicationById(@PathVariable Long applicationId) {
-        return ResponseEntity.ok(modelMapper.map(applicationService.getApplicationById(applicationId), ApplicationDTO.class));
+        return ResponseEntity.ok(modelMapper.map(
+                applicationService.findApplicationById(applicationId).orElseThrow(() -> new NotFoundException("Application " + applicationId + " not found")),
+                ApplicationDTO.class));
     }
 
-
-    @PutMapping("/deal/admin/application/{applicationId}")
-    @Operation(summary = "Set application status", description = "Set specified status to an application")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Status was successfully changed"),
-            @ApiResponse(responseCode = "400", description = "Bad request (includes incorrect status)"),
-            @ApiResponse(responseCode = "404", description = "Application not found")
-    })
-    public ResponseEntity setApplicationStatus(@PathVariable Long applicationId, @RequestBody ApplicationStatus status) {
-        dealService.setApplicationStatus(applicationId, status, ChangeType.MANUAL);
-        return new ResponseEntity(HttpStatus.OK);
+    @Override
+    public ResponseEntity<String> setApplicationStatus(@PathVariable Long applicationId, @RequestBody String status) {
+        dealService.setAndSaveApplicationStatus(applicationId, ApplicationStatus.valueOf(status), ChangeType.MANUAL);
+        return ResponseEntity.ok("Status was successfully changed");
     }
-
-
-
-
 }

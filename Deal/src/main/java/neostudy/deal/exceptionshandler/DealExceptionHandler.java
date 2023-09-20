@@ -39,7 +39,7 @@ public class DealExceptionHandler {
                 .body("Credit conveyor unavailable");
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
+    @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<String> ConstraintViolationException(ConstraintViolationException exception) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,8 +35,8 @@ class DocumentsServiceImplImplTest {
         applicationService = Mockito.mock();
         msgSender = Mockito.mock();
         documentsServiceImpl = new DocumentsServiceImpl(msgSender, applicationService);
-        Mockito.when(applicationService.getApplicationById(application.getId())).thenReturn(application);
-        Mockito.when(applicationService.getApplicationById(0L)).thenThrow(new NotFoundException("Application 0 not found"));
+        Mockito.when(applicationService.findApplicationById(application.getId())).thenReturn(Optional.ofNullable(application));
+        Mockito.when(applicationService.findApplicationById(0L)).thenThrow(new NotFoundException("Application 0 not found"));
     }
 
     @Test

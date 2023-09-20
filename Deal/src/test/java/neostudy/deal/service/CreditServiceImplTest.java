@@ -1,7 +1,7 @@
 package neostudy.deal.service;
 
 import neostudy.deal.dto.CreditDTO;
-import neostudy.deal.dto.enums.CreditStatus;
+import neostudy.deal.dto.CreditStatus;
 import neostudy.deal.entity.Credit;
 import neostudy.deal.entity.PaymentScheduleElement;
 import neostudy.deal.repository.CreditRepository;

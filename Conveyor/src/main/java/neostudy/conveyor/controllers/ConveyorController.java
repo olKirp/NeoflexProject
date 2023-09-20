@@ -13,6 +13,7 @@ import neostudy.conveyor.dto.LoanOfferDTO;
 import neostudy.conveyor.dto.ScoringDataDTO;
 import neostudy.conveyor.service.LoanOffersService;
 import neostudy.conveyor.service.ScoringService;
+import org.openapitools.api.ConveyorApi;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,27 +23,20 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Tag(name="Conveyor controller")
-public class ConveyorController {
+public class ConveyorController implements ConveyorApi{
 
     private final LoanOffersService loanOffersService;
 
     private final ScoringService scoringService;
 
-    @Operation(summary= "Gets loan offers", description = "Returns four LoanOfferDTO or message with the reason for rejection of the application")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "CreditDTO successfully created"),
-            @ApiResponse(responseCode = "400", description = "LoanApplicationRequestDTO is not valid and was rejected")})
-    @PostMapping("/conveyor/offers")
+    @Override
     public ResponseEntity<List<LoanOfferDTO>> createLoanOffers(@Valid @RequestBody LoanApplicationRequestDTO loanRequest) {
         List<LoanOfferDTO> offers = loanOffersService.createLoanOffers(loanRequest);
+        System.out.println("offers " + offers);
         return ResponseEntity.ok(offers);
     }
 
-    @Operation(summary= "Get credit offer", description = "Returns CreditDTO or message with the reason for rejection of the application")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "CreditDTO successfully created"),
-            @ApiResponse(responseCode = "400", description = "ScoringDataDTO is not valid and was rejected")})
-    @PostMapping("/conveyor/calculation")
+    @Override
     public ResponseEntity<CreditDTO> createCredit(@Valid @RequestBody ScoringDataDTO scoringDataDTO) {
         CreditDTO credit = scoringService.createCredit(scoringDataDTO);
         return ResponseEntity.ok(credit);

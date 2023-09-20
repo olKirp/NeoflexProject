@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +40,10 @@ class DealControllerTest {
     @Test
     void createLoanOffers() throws Exception {
         LoanApplicationRequestDTO correctRequest = new LoanApplicationRequestDTO(new BigDecimal(100000), 10, "Name", "LastName", "MiddleName", "correct@mail.ru", LocalDate.of(1980, 10, 10), "1111", "222222");
+
+        List<LoanOfferDTO> list = new ArrayList<>();
+        list.add(Instancio.create(LoanOfferDTO.class));
+        Mockito.when(dealService.createLoanOffers(correctRequest)).thenReturn(list);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/deal/application")
                         .contentType(MediaType.APPLICATION_JSON)

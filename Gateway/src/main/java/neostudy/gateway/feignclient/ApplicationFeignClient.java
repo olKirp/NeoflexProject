@@ -18,5 +18,5 @@ public interface ApplicationFeignClient {
     ResponseEntity<List<LoanOfferDTO>> createLoanOffers(@Valid @RequestBody LoanApplicationRequestDTO loanRequest);
 
     @PostMapping("/application/offer")
-    void saveLoanOffer(@Valid @RequestBody LoanOfferDTO appliedOffer);
+    ResponseEntity<String> saveLoanOffer(@Valid @RequestBody LoanOfferDTO appliedOffer);
 }

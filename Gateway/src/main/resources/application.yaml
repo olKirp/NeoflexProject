@@ -1,11 +1,11 @@
 server:
-  port: 8085
+  port: 8086
 spring:
   cloud:
     openfeign:
       client:
         config:
           application:
-            url: http://localhost:8082/
+            url: http://application-server:8082/
           deal:
-            url: http://localhost:8081/
+            url: http://deal-server:8081/

@@ -3,13 +3,13 @@ package neostudy.deal.service;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.LoanOfferDTO;
 import neostudy.deal.dto.ApplicationStatus;
-import neostudy.deal.dto.enums.ChangeType;
+import neostudy.deal.dto.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 import neostudy.deal.entity.StatusHistory;
-import neostudy.deal.exceptions.NotFoundException;
 import neostudy.deal.repository.ApplicationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,9 +21,12 @@ import static neostudy.deal.dto.ApplicationStatus.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
+
+    private final List<ApplicationStatus> approvedByConveyorStatuses = List.of(ApplicationStatus.PREAPPROVAL, ApplicationStatus.APPROVED, ApplicationStatus.CLIENT_DENIED, ApplicationStatus.CC_DENIED);
 
     public void setApplicationStatus(Application application, ApplicationStatus status, ChangeType type) {
         application.setStatus(status);
@@ -40,35 +43,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         setApplicationStatus(application, APPROVED, ChangeType.AUTOMATIC);
     }
 
-    public boolean isApplicationExists(Long id) {
-        return applicationRepository.existsById(id);
+    public Application saveApplication(Application application) {
+        return applicationRepository.save(application);
     }
 
-    public boolean isApplicationExistsByClientId(Long id) {
-        return applicationRepository.existsApplicationByClientId(id);
-    }
-
-    public Long saveApplication(Application application) {
-        return applicationRepository.save(application).getId();
-    }
-
-    public Application getApplicationById(Long applicationId) {
-        Optional<Application> application = applicationRepository.findById(applicationId);
-        if (application.isEmpty()) {
-            throw new NotFoundException("Application " + applicationId + " not found");
-        }
-        return application.get();
-    }
-
-    public boolean checkIfAppliedOfferExists(Application application) {
-        return application.getAppliedOffer() != null;
+    public Optional<Application> findApplicationById(Long applicationId) {
+        return applicationRepository.findById(applicationId);
     }
 
     public boolean isApplicationApprovedByConveyor(Application application) {
-        return !(application.getStatus() == ApplicationStatus.PREAPPROVAL
-                || application.getStatus() == ApplicationStatus.APPROVED
-                || application.getStatus() == ApplicationStatus.CLIENT_DENIED
-                || application.getStatus() == ApplicationStatus.CC_DENIED);
+        return !approvedByConveyorStatuses.contains(application.getStatus());
     }
 
     @Override
@@ -76,21 +60,19 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationRepository.findAll();
     }
 
-    public Application createApplicationForClient(Client client) {
-        Application application;
-        if (isApplicationExistsByClientId(client.getId())) {
-            application = applicationRepository.findApplicationByClientId(client.getId());
-        } else {
-            application = Application.builder()
-                    .client(client)
-                    .creationDate(LocalDate.now())
-                    .status(PREAPPROVAL)
-                    .sesCode(generateSesCode())
-                    .statusHistory(new StatusHistory(PREAPPROVAL, LocalDateTime.now(), ChangeType.AUTOMATIC))
-                    .build();
+    public Application getApplicationForClient(Client client) {
+        return applicationRepository.findApplicationByClientId(client.getId()).
+                or(() -> Optional.ofNullable(createApplication(client))).get();
+    }
 
-        }
-        return application;
+    private Application createApplication(Client client) {
+        return Application.builder()
+                .client(client)
+                .creationDate(LocalDate.now())
+                .status(PREAPPROVAL)
+                .sesCode(generateSesCode())
+                .statusHistory(new StatusHistory(PREAPPROVAL, LocalDateTime.now(), ChangeType.AUTOMATIC))
+                .build();
     }
 
     private String generateSesCode() {

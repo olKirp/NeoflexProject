@@ -9,9 +9,13 @@ import neostudy.deal.mapper.ClientMapper;
 import neostudy.deal.repository.ClientRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
@@ -24,38 +28,36 @@ public class ClientServiceImpl implements ClientService {
         return clientRepository.save(client);
     }
 
-    private Client updateClient(LoanApplicationRequestDTO loanRequest) {
-        Client existedClient = findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
+    private Client updateClient(LoanApplicationRequestDTO loanRequest, Client existedClient) {
         modelMapper.map(loanRequest, existedClient);
         return existedClient;
     }
 
-    public Client findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber) {
+    public Optional<Client> findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber) {
         return clientRepository.findClientByPassportSeriesAndPassportNumber(passportSeries, passportNumber);
     }
 
-    public void addInfoToClient(Client client, FinishRegistrationRequestDTO registrationRequest) {
+    public Client mapFinishRegistrationRequestToClient(Client client, FinishRegistrationRequestDTO registrationRequest) {
         if (clientRepository.existsClientByAccount(registrationRequest.getAccount())) {
             throw new UniqueConstraintViolationException("Client with account " + registrationRequest.getAccount() + " already exists");
         } else if (clientRepository.existsClientByEmploymentINN(registrationRequest.getEmploymentDTO().getEmployerINN())) {
             throw new UniqueConstraintViolationException("Client with INN " + registrationRequest.getEmploymentDTO().getEmployerINN() + " already exists");
         }
 
-        clientMapper.updateClientFromFinishRegistrationRequest(registrationRequest, client);
+        return clientMapper.updateClientFromFinishRegistrationRequest(registrationRequest, client);
     }
 
     public Client createClientForLoanRequest(LoanApplicationRequestDTO loanRequest) {
-        if (clientRepository.existsClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber())) {
-            return updateClient(loanRequest);
-        }
-        return modelMapper.map(loanRequest, Client.class);
+        return findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber())
+        .map(client -> updateClient(loanRequest, client))
+                .orElse(modelMapper.map(loanRequest, Client.class));
     }
 
     public boolean existsClientByEmail(String email) {
         return clientRepository.existsClientByEmail(email);
     }
 
-    public Long getClientIdByEmail(String email) {
-        return clientRepository.findClientByEmail(email).getId();
+    public Optional<Client> findClientByEmail(String email) {
+        return clientRepository.findClientByEmail(email);
     }
 }

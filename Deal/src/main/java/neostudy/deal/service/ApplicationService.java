@@ -2,25 +2,22 @@ package neostudy.deal.service;
 
 import neostudy.deal.dto.LoanOfferDTO;
 import neostudy.deal.dto.ApplicationStatus;
-import neostudy.deal.dto.enums.ChangeType;
+import neostudy.deal.dto.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ApplicationService {
 
-    boolean checkIfAppliedOfferExists(Application application);
-
-    Application getApplicationById(Long applicationId);
+    Optional<Application> findApplicationById(Long applicationId);
 
     void setApplicationStatus(Application application, ApplicationStatus status, ChangeType type);
 
-    Application createApplicationForClient(Client client);
+    Application getApplicationForClient(Client client);
 
-    boolean isApplicationExists(Long id);
-
-    Long saveApplication(Application application);
+    Application saveApplication(Application application);
 
     void setLoanOfferToApplication(Application application, LoanOfferDTO appliedOffer);
 

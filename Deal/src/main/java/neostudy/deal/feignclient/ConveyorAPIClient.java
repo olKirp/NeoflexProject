@@ -13,7 +13,6 @@ import java.util.List;
 @FeignClient(name = "conveyor")
 public interface ConveyorAPIClient {
 
-
     @PostMapping("/conveyor/offers")
     ResponseEntity<List<LoanOfferDTO>> createLoanOffers(LoanApplicationRequestDTO loanRequest);
 

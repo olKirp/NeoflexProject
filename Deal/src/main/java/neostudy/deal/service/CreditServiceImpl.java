@@ -2,14 +2,16 @@ package neostudy.deal.service;
 
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.CreditDTO;
-import neostudy.deal.dto.enums.CreditStatus;
+import neostudy.deal.dto.CreditStatus;
 import neostudy.deal.entity.Credit;
 import neostudy.deal.repository.CreditRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CreditServiceImpl implements CreditService{
 
     private final CreditRepository creditRepository;

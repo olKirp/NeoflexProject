@@ -55,19 +55,19 @@ class DocumentsControllerTest {
     @Test
     void signDocuments() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/1/code")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.TEXT_PLAIN)
                         .content("12fv"))
                 .andExpect(status().isBadRequest());
 
         Mockito.doThrow(new NotFoundException("Application 1 not found")).when(documentsService).signDocuments(1L, "1234");
         mockMvc.perform(MockMvcRequestBuilders.post("/1/code")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.TEXT_PLAIN)
                         .content("1234"))
                 .andExpect(status().isNotFound());
 
         Mockito.doThrow(new IncorrectSesCodeException("Incorrect ses-code")).when(documentsService).signDocuments(1L, "0234");
         mockMvc.perform(MockMvcRequestBuilders.post("/1/code")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.TEXT_PLAIN)
                         .content("0234"))
                 .andExpect(status().isConflict());
     }

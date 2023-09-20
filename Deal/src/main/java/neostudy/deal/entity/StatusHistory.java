@@ -12,7 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import neostudy.deal.dto.ApplicationStatus;
-import neostudy.deal.dto.enums.ChangeType;
+import neostudy.deal.dto.ChangeType;
 
 import java.time.LocalDateTime;
 

@@ -21,9 +21,9 @@ spring:
           client:
               config:
                   deal:
-                      url: http://localhost:8081/
+                      url: http://deal-server:8081/
   kafka:
-      bootstrap-servers: localhost:29092
+      bootstrap-servers: kafka:29092
       listener:
           ack-mode: record
       consumer:
@@ -40,9 +40,9 @@ spring:
                       default:
                          type: neostudy.dossier.dto.EmailMessageDTO
 links:
-    signDocuments: http://localhost:8081/swagger-ui/index.html#/documents-controller/signDocuments
-    sendDocuments: http://localhost:8081/swagger-ui/index.html#/documents-controller/sendDocuments
-    signDocumentsRequest: http://localhost:8081/swagger-ui/index.html#/documents-controller/signDocumentsRequest
-    finishRegistration: http://localhost:8081/swagger-ui/index.html#/deal-controller/createCredit
+    signDocuments: http://localhost:8086/swagger-ui/index.html#/gateway-deal-controller/signDocuments
+    sendDocuments: http://localhost:8086/swagger-ui/index.html#/gateway-deal-controller/sendDocuments
+    signDocumentsRequest: http://localhost:8086/swagger-ui/index.html#/gateway-deal-controller/signDocumentsRequest
+    finishRegistration: http://localhost:8086/swagger-ui/index.html#/gateway-deal-controller/createCredit
 documents:
     path: ./documents/

@@ -4,7 +4,7 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.*;
 import neostudy.deal.dto.ApplicationStatus;
-import neostudy.deal.dto.enums.ChangeType;
+import neostudy.deal.dto.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 import neostudy.deal.entity.Credit;
@@ -15,11 +15,16 @@ import neostudy.deal.exceptions.UniqueConstraintViolationException;
 import neostudy.deal.feignclient.ConveyorAPIClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class DealServiceImpl implements DealService {
     
     private final FinishRegistrationService finishRegistrationService;
@@ -35,33 +40,36 @@ public class DealServiceImpl implements DealService {
     private final KafkaMessageSenderService msgSender;
 
     public void sendMessage(Long applicationId, Theme theme) {
-        Application application = applicationService.getApplicationById(applicationId);
+        Application application = applicationService.findApplicationById(applicationId).orElseThrow(() -> new NotFoundException("Application " + applicationId + " not found"));
         msgSender.sendMessage(application.getClient().getEmail(), theme, applicationId);
     }
 
-    public List<LoanOfferDTO> createLoanOffera(LoanApplicationRequestDTO loanRequest) {
+    public List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO loanRequest) {
         checkLoanOffer(loanRequest);
 
-        Application application = applicationService.createApplicationForClient(clientService.createClientForLoanRequest(loanRequest));
-        application.setId(applicationService.saveApplication(application));
-
+        Application application = applicationService.getApplicationForClient(clientService.createClientForLoanRequest(loanRequest));
         List<LoanOfferDTO> offers = getLoanOffersFromConveyor(loanRequest);
-        setApplicationIdToOffers(offers, application.getId());
+        setApplicationIdToOffers(offers, applicationService.saveApplication(application).getId());
 
         return offers;
     }
 
     private void checkLoanOffer(LoanApplicationRequestDTO loanRequest) {
-        Client client = clientService.findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
-        if (client != null) {
-            if (applicationService.checkIfAppliedOfferExists(client.getApplication())) {
+        Optional<Client> optionalClient =
+                clientService.findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
+
+        if (optionalClient.isPresent()) {
+            Client client = optionalClient.get();
+            if (client.getApplication().getAppliedOffer() != null) {
                 throw new IncorrectApplicationStatusException("Client with passport " + client.getPassport().getSeries() + " " + client.getPassport().getNumber() + " already exists and approved application. Application cannot be changed");
             }
-            if (clientService.existsClientByEmail(loanRequest.getEmail()) && !clientService.getClientIdByEmail(loanRequest.getEmail()).equals(client.getId())) {
+            if (!Objects.equals(loanRequest.getEmail(), client.getEmail()) && clientService.existsClientByEmail(loanRequest.getEmail())) {
                 throw new UniqueConstraintViolationException("Another client has email " + loanRequest.getEmail());
             }
-        } else if (clientService.existsClientByEmail(loanRequest.getEmail())) {
-            throw new UniqueConstraintViolationException("Another client has email " + loanRequest.getEmail());
+        } else {
+            if (clientService.existsClientByEmail(loanRequest.getEmail())) {
+                throw new UniqueConstraintViolationException("Another client has email " + loanRequest.getEmail());
+            }
         }
     }
 
@@ -82,11 +90,8 @@ public class DealServiceImpl implements DealService {
     }
 
     public void approveLoanOffer(LoanOfferDTO appliedOffer) {
-        if (!applicationService.isApplicationExists(appliedOffer.getApplicationId())) {
-            throw new NotFoundException("Application " + appliedOffer.getApplicationId() + " not found");
-        }
-
-        Application application = applicationService.getApplicationById(appliedOffer.getApplicationId());
+        Application application = applicationService.findApplicationById(appliedOffer.getApplicationId())
+                .orElseThrow(() -> new NotFoundException("Application " + appliedOffer.getApplicationId() + " not found"));
 
         if (applicationService.isApplicationApprovedByConveyor(application)) {
             throw new IncorrectApplicationStatusException("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed");
@@ -96,21 +101,15 @@ public class DealServiceImpl implements DealService {
         applicationService.saveApplication(application);
     }
 
-    private Application findApplicationById(Long applicationId) {
-        return applicationService.getApplicationById(applicationId);
-    }
 
-    private void checkApplication(Application application) {
-        if (!applicationService.checkIfAppliedOfferExists(application)) {
+    public void createCreditForApplication(FinishRegistrationRequestDTO registrationRequest, Long applicationId) {
+        Application application = applicationService.findApplicationById(applicationId).orElseThrow(() -> new NotFoundException("Application " + applicationId + " not found"));
+
+        if (application.getAppliedOffer() == null) {
             throw new NotFoundException("No applied offers for application " + application.getId());
         } else if (applicationService.isApplicationApprovedByConveyor(application)) {
             throw new IncorrectApplicationStatusException("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed");
         }
-    }
-
-    public void createCreditForApplication(FinishRegistrationRequestDTO registrationRequest, Long applicationId) {
-        Application application = findApplicationById(applicationId);
-        checkApplication(application);
 
         addInfoToClient(application.getClient(), registrationRequest);
 
@@ -139,7 +138,7 @@ public class DealServiceImpl implements DealService {
     }
 
     private void addInfoToClient(Client client, FinishRegistrationRequestDTO registrationRequest) {
-        clientService.addInfoToClient(client, registrationRequest);
+        clientService.mapFinishRegistrationRequestToClient(client, registrationRequest);
         clientService.saveClient(client);
     }
 
@@ -147,8 +146,8 @@ public class DealServiceImpl implements DealService {
         return finishRegistrationService.mapToScoringData(request, application.getClient(), application);
     }
 
-    public void setApplicationStatus(Long appId, ApplicationStatus status, ChangeType type) {
-        Application application = applicationService.getApplicationById(appId);
+    public void setAndSaveApplicationStatus(Long appId, ApplicationStatus status, ChangeType type) {
+        Application application = applicationService.findApplicationById(appId).orElseThrow(() -> new NotFoundException("Application " + appId + " not found"));
         applicationService.setApplicationStatus(application, status, type);
         applicationService.saveApplication(application);
     }

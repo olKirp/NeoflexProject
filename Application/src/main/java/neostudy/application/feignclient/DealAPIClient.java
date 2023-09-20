@@ -17,5 +17,5 @@ public interface DealAPIClient {
     ResponseEntity<List<LoanOfferDTO>> createLoanOffers(LoanApplicationRequestDTO loanRequest);
 
     @PutMapping("/deal/offer")
-    void saveLoanOffer(@Valid @RequestBody LoanOfferDTO appliedOffer);
+    ResponseEntity<String> saveLoanOffer(@Valid @RequestBody LoanOfferDTO appliedOffer);
 }

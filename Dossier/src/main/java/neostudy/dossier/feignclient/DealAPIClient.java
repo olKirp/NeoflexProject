@@ -1,7 +1,7 @@
 package neostudy.dossier.feignclient;
 
 import neostudy.dossier.dto.ApplicationDTO;
-import neostudy.dossier.dto.enums.ApplicationStatus;
+import neostudy.dossier.dto.ApplicationStatus;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,5 +16,5 @@ public interface DealAPIClient {
     ResponseEntity<ApplicationDTO> getApplicationById(@PathVariable Long applicationId);
 
     @PutMapping("/deal/admin/application/{applicationId}")
-    ResponseEntity setApplicationStatus(@PathVariable Long applicationId, @RequestBody ApplicationStatus status);
+    ResponseEntity<String> setApplicationStatus(@PathVariable Long applicationId, @RequestBody String status);
 }

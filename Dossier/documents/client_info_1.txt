@@ -1,0 +1,16 @@
+Client information for application 1:
+Client: Petrova Olga Sergeevna
+Birthdate: 1997-09-19
+Gender: FEMALE
+Marital status: MARRIED
+Dependents amount: 0
+Account: 0123456789
+Passport: 1611 227222, issued by: Department of Internal Affairs in Moscow 2023-09-19
+Employment: class EmploymentDTO {
+    status: EMPLOYED
+    employerINN: null
+    salary: 50000.00
+    employmentPosition: WORKER
+    workExperienceTotal: 36
+    workExperienceCurrent: 12
+}

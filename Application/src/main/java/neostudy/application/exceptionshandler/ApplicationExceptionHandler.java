@@ -16,13 +16,13 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<String> handleFeignException(FeignException exception) {
-
         if (exception.status() == 400 || exception.status() == 409 || exception.status() == 404) {
             return ResponseEntity
                     .status(exception.status())
                     .body(exception.contentUTF8());
         }
 
+        exception.printStackTrace();
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("External service error");

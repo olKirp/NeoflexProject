@@ -24,16 +24,14 @@ paths:
         "400":
           description: LoanApplicationRequestDTO is not valid
           content:
-            '*/*':
+            application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/LoanOfferDTO'
+                type: string
         "200":
           description: "CreditDTO successfully created or the application was rejected,\
             \ but LoanApplicationRequestDTO was valid"
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -56,14 +54,14 @@ paths:
         "400":
           description: ScoringDataDTO is not valid
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: '#/components/schemas/CreditDTO'
+                type: string
         "200":
           description: "CreditDTO successfully created or the application was rejected,\
             \ but ScoringDataDTO was valid"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CreditDTO'
 components:
@@ -383,6 +381,10 @@ components:
           description: User's birthdate. Should be before today
           format: date
           example: 1990-01-01
+        email:
+          type: string
+          description: User's email address
+          example: example@mail.com
         gender:
           $ref: '#/components/schemas/Gender'
         maritalStatus:

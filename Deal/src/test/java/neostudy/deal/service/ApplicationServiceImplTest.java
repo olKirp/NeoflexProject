@@ -2,7 +2,7 @@ package neostudy.deal.service;
 
 import neostudy.deal.dto.LoanOfferDTO;
 import neostudy.deal.dto.ApplicationStatus;
-import neostudy.deal.dto.enums.ChangeType;
+import neostudy.deal.dto.ChangeType;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
 import neostudy.deal.exceptions.NotFoundException;
@@ -27,12 +27,13 @@ class ApplicationServiceImplTest {
     private static final Application application = Instancio.create(Application.class);
     private static final Application applicationWithNullOffer = Instancio.create(Application.class);
 
+    private static final ApplicationRepository applicationRepository = Mockito.mock();
+
     @BeforeAll
-    static void init(@Mock ApplicationRepository applicationRepository) {
+    static void init() {
         applicationWithNullOffer.setAppliedOffer(null);
         applicationWithNullOffer.setId(2L);
 
-        Mockito.when(applicationRepository.existsApplicationByClientId(1L)).thenReturn(false);
         Mockito.when(applicationRepository.findById(1L)).thenReturn(Optional.empty());
         Mockito.when(applicationRepository.findById(2L)).thenReturn(Optional.of(applicationWithNullOffer));
         Mockito.when(applicationRepository.findById(3L)).thenReturn(Optional.of(application));
@@ -54,22 +55,31 @@ class ApplicationServiceImplTest {
 
     @Test
     void getApplicationById() {
-        String correctMsg = "Application 1 not found";
-        Exception exception = assertThrows(NotFoundException.class, () -> applicationService.getApplicationById(1L));
-        assertEquals(correctMsg, exception.getMessage());
-
-        assertEquals(application, applicationService.getApplicationById(3L));
+        Mockito.when(applicationRepository.findById(3L)).thenReturn(Optional.of(application));
+        assertEquals(Optional.of(application), applicationService.findApplicationById(3L));
     }
 
     @Test
-    void createApplicationForClient() {
+    void getApplicationForClientIfAppNotExists() {
         Client client = Instancio.create(Client.class);
-        Application application = applicationService.createApplicationForClient(client);
+        Application application = applicationService.getApplicationForClient(client);
 
         assertEquals(client, application.getClient());
         assertEquals(ApplicationStatus.PREAPPROVAL, application.getStatus());
         assertNotNull(application.getCreationDate());
-        assertNotNull(application.getSignDate());
+    }
+
+    @Test
+    void getApplicationForClientIfAppExists() {
+        Application expectedApp = Instancio.create(Application.class);
+
+        Mockito.when(applicationRepository.findApplicationByClientId(expectedApp.getClient().getId())).thenReturn(Optional.ofNullable(expectedApp));
+
+        Application application = applicationService.getApplicationForClient(expectedApp.getClient());
+
+        assertEquals(expectedApp.getClient(), application.getClient());
+        assertEquals(expectedApp.getStatus(), application.getStatus());
+        assertEquals(expectedApp.getSesCode(), application.getSesCode());
     }
 
     @Test
@@ -107,16 +117,5 @@ class ApplicationServiceImplTest {
 
         application.setStatus(ApplicationStatus.DOCUMENT_SIGNED);
         assertTrue(applicationService.isApplicationApprovedByConveyor(application));
-    }
-
-    @Test
-    void checkIfAppliedOfferExists() {
-        LoanOfferDTO offer = application.getAppliedOffer();
-
-        assertTrue(applicationService.checkIfAppliedOfferExists(application));
-
-        application.setAppliedOffer(null);
-        assertFalse(applicationService.checkIfAppliedOfferExists(application));
-        application.setAppliedOffer(offer);
     }
 }

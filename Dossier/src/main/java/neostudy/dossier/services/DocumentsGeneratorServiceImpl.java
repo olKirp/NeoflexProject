@@ -4,7 +4,7 @@ import lombok.Data;
 import neostudy.dossier.dto.ApplicationDTO;
 import neostudy.dossier.dto.ClientDTO;
 import neostudy.dossier.dto.CreditDTO;
-import neostudy.dossier.dto.PaymentScheduleElement;
+import neostudy.dossier.dto.PaymentScheduleElementDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ public class DocumentsGeneratorServiceImpl implements DocumentsGeneratorService 
         List<String> lines = new ArrayList<>();
 
         lines.add("Payment schedule for loan application " + application.getId() + ":");
-        for (PaymentScheduleElement element : application.getCredit().getPaymentSchedule()) {
+        for (PaymentScheduleElementDTO element : application.getCredit().getPaymentSchedule()) {
             lines.add(element.getNumber() + ".");
             lines.add("Date: " + element.getDate());
             lines.add("Total payment: " + element.getTotalPayment());

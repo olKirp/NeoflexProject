@@ -8,6 +8,8 @@ import neostudy.conveyor.service.ScoringService;
 import org.instancio.Instancio;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,6 +20,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
@@ -47,12 +51,17 @@ class ConveyorControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(conveyorController)
                 .setControllerAdvice(new ConveyorControllerExceptionHandler())
                 .build();
+
+        loanOffersService = Mockito.mock(LoanOffersService.class);
+
     }
 
     @Test
     void createLoanOffers() throws Exception {
         LoanApplicationRequestDTO correctRequest = new LoanApplicationRequestDTO(new BigDecimal(100000), 10, "Name", "LastName", "MiddleName", "correct@mail.ru", LocalDate.of(1980, 10, 10), "1111", "222222");
-
+        List<LoanOfferDTO> list = new ArrayList<>();
+        list.add(new LoanOfferDTO());
+        Mockito.when(loanOffersService.createLoanOffers(correctRequest)).thenReturn(list);
         mockMvc.perform(MockMvcRequestBuilders.post("/conveyor/offers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(correctRequest)))

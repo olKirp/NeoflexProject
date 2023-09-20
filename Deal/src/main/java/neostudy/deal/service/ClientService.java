@@ -4,17 +4,19 @@ import neostudy.deal.dto.FinishRegistrationRequestDTO;
 import neostudy.deal.dto.LoanApplicationRequestDTO;
 import neostudy.deal.entity.Client;
 
+import java.util.Optional;
+
 public interface ClientService {
 
     Client saveClient(Client client);
 
     Client createClientForLoanRequest(LoanApplicationRequestDTO loanRequest);
 
-    void addInfoToClient(Client client, FinishRegistrationRequestDTO registrationRequest);
+    Client mapFinishRegistrationRequestToClient(Client client, FinishRegistrationRequestDTO registrationRequest);
 
-    Client findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
+    Optional<Client> findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
 
     boolean existsClientByEmail(String email);
 
-    Long getClientIdByEmail(String email);
+    Optional<Client> findClientByEmail(String email);
 }

@@ -3,7 +3,7 @@ package neostudy.dossier.services;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import neostudy.dossier.dto.ApplicationDTO;
-import neostudy.dossier.dto.enums.Theme;
+import neostudy.dossier.dto.Theme;
 import neostudy.dossier.feignclient.DealAPIClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

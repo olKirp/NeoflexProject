@@ -4,10 +4,12 @@ import neostudy.deal.entity.Client;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ClientRepository extends CrudRepository<Client, Long> {
 
-    Client findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
+    Optional<Client> findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
 
     boolean existsClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
 
@@ -17,5 +19,5 @@ public interface ClientRepository extends CrudRepository<Client, Long> {
 
     boolean existsClientByEmail(String email);
 
-    Client findClientByEmail(String email);
+    Optional<Client> findClientByEmail(String email);
 }

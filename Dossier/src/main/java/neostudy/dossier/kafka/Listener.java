@@ -1,12 +1,13 @@
 package neostudy.dossier.kafka;
 
+import feign.FeignException;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import neostudy.dossier.dto.ApplicationDTO;
 import neostudy.dossier.dto.EmailMessageDTO;
-import neostudy.dossier.dto.enums.ApplicationStatus;
+import neostudy.dossier.dto.ApplicationStatus;
 import neostudy.dossier.exceptions.DealMicroserviceException;
 import neostudy.dossier.feignclient.DealAPIClient;
 import neostudy.dossier.services.DocumentsGeneratorService;
@@ -17,6 +18,7 @@ import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Log4j2
@@ -53,13 +55,17 @@ public class Listener {
             List<String> attachments = documentsGenerator.generateAllDocuments(application);
             String body = mailCreatorService.createMailBody(message.getTheme(), message.getApplicationId());
             mailSender.sendEmailWithAttachment(message.getAddress(), "Documents", body, attachments);
-            apiClient.setApplicationStatus(message.getApplicationId(), ApplicationStatus.DOCUMENTS_CREATED);
+            apiClient.setApplicationStatus(message.getApplicationId(), String.valueOf(ApplicationStatus.DOCUMENTS_CREATED));
         } catch (IOException exception) {
             log.error("Exception during documents generation: " + exception.getMessage());
         } catch (MailSendException exception) {
-            log.error("Mail sendException: " + exception.getMessage());
-            apiClient.setApplicationStatus(message.getApplicationId(), ApplicationStatus.CC_APPROVED);
-        } catch (DealMicroserviceException ignored) {
+            log.error("Mail send exception: " + exception.getMessage());
+            apiClient.setApplicationStatus(message.getApplicationId(), String.valueOf(ApplicationStatus.CC_APPROVED));
+        } catch (FeignException exception) {
+
+            log.error("Feign exception: " + exception.getMessage());
+        }
+        catch (DealMicroserviceException ignored) {
         }
     }
 

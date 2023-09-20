@@ -14,8 +14,8 @@ import org.hibernate.type.SqlTypes;
 @Data
 @Table(name = "application")
 @Builder(toBuilder = true)
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString(exclude = { "client", "credit"})
 public class Application {
 

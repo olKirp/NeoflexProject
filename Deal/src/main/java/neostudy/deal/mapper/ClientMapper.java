@@ -17,6 +17,6 @@ public interface ClientMapper {
     @Mapping(source = "request.maritalStatus", target = "client.maritalStatus")
     @Mapping(source = "request.employmentDTO.status", target = "client.employment.status")
     @Mapping(source = "request.employmentDTO.employerINN", target = "client.employment.INN")
-    void updateClientFromFinishRegistrationRequest(FinishRegistrationRequestDTO request, @MappingTarget Client client);
+    Client updateClientFromFinishRegistrationRequest(FinishRegistrationRequestDTO request, @MappingTarget Client client);
 
 }

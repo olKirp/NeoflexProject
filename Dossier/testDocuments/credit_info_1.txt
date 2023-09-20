@@ -1,0 +1,8 @@
+Credit information for application 1:
+Total amount: 497.68792
+Term: 4199
+Rate: 2245.10116
+Monthly payment: 1833.73482
+The full cost of credit: 1724.73862
+Insurance enabled: false
+Salary client: false
