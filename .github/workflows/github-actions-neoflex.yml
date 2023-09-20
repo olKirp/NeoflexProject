@@ -100,7 +100,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_PAT }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
       - name: Analyze Gateway
         working-directory: Gateway
         run: ./mvnw -B verify sonar:sonar -Dsonar.projectKey=olKirp_TestCreditConveyor -Dsonar.organization=olkirp -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
