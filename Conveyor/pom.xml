@@ -14,6 +14,8 @@
     <name>Conveyor</name>
     <description>Conveyor</description>
     <properties>
+        <sonar.organization>olkirp</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <java.version>17</java.version>
         <start-class>neostudy.conveyor.ConveyorApplication</start-class>
     </properties>
@@ -62,6 +64,7 @@
             <artifactId>jackson-databind-nullable</artifactId>
             <version>0.2.6</version>
         </dependency>
+
     </dependencies>
 
     <build>
