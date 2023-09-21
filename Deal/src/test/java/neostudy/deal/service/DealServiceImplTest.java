@@ -1,8 +1,11 @@
 package neostudy.deal.service;
 
+import feign.FeignException;
+import feign.Request;
 import neostudy.deal.dto.*;
 import neostudy.deal.entity.Application;
 import neostudy.deal.entity.Client;
+import neostudy.deal.exceptions.CreditConveyorDeniedException;
 import neostudy.deal.exceptions.IncorrectApplicationStatusException;
 import neostudy.deal.exceptions.NotFoundException;
 import neostudy.deal.exceptions.UniqueConstraintViolationException;
@@ -13,7 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,12 +53,59 @@ class DealServiceImplTest {
     }
 
     @Test
+    void getLoanOffers() {
+        LoanApplicationRequestDTO requestDTO = Instancio.create(LoanApplicationRequestDTO.class);
+
+        Client client = Instancio.create(Client.class);
+        client.setId(3L);
+        client.getApplication().setAppliedOffer(null);
+
+        Application app = Instancio.create(Application.class);
+
+        Mockito.when(clientService.createClientForLoanRequest(requestDTO)).thenReturn(client);
+        Mockito.when(applicationService.getApplicationForClient(client)).thenReturn(app);
+        Mockito.when(applicationService.saveApplication(app)).thenReturn(app);
+
+        List<LoanOfferDTO> arrayList = new ArrayList<>();
+        arrayList.add(new LoanOfferDTO());
+        Mockito.when(conveyorAPIClient.createLoanOffers(requestDTO)).thenReturn(ResponseEntity.ok(arrayList));
+
+        List<LoanOfferDTO> result = dealService.createLoanOffers(requestDTO);
+        assertEquals(result.get(0).getApplicationId(), app.getId());
+        System.out.println(result);
+    }
+    @Test
+    void getLoanOffersWhenOpenApiExceptions() {
+        LoanApplicationRequestDTO requestDTO = Instancio.create(LoanApplicationRequestDTO.class);
+
+        Client client = Instancio.create(Client.class);
+        client.setId(3L);
+        client.getApplication().setAppliedOffer(null);
+
+        Application app = Instancio.create(Application.class);
+
+        Mockito.when(clientService.createClientForLoanRequest(requestDTO)).thenReturn(client);
+        Mockito.when(applicationService.getApplicationForClient(client)).thenReturn(app);
+        Mockito.when(conveyorAPIClient.createLoanOffers(requestDTO)).thenThrow(new FeignException.BadRequest("", Instancio.create(Request.class), null, null));
+        assertThrows(CreditConveyorDeniedException.class, () -> dealService.createLoanOffers(requestDTO));
+
+        LoanApplicationRequestDTO requestDTO2 = Instancio.create(LoanApplicationRequestDTO.class);
+        Mockito.when(conveyorAPIClient.createLoanOffers(requestDTO2)).thenThrow(new FeignException.InternalServerError("", Instancio.create(Request.class), null, null));
+        assertThrows(FeignException.InternalServerError.class, () -> dealService.createLoanOffers(requestDTO2));
+    }
+
+    @Test
     void approveLoanOfferWhenApplicationHasIncorrectStatus() {
         LoanOfferDTO loanOffer = new LoanOfferDTO();
         loanOffer.setApplicationId(application.getId());
         Mockito.when(applicationService.isApplicationApprovedByConveyor(application)).thenReturn(true);
         Exception exception = assertThrows(IncorrectApplicationStatusException.class, () -> dealService.approveLoanOffer(loanOffer));
         assertEquals("Application " + application.getId() + " has status " + application.getStatus() + " and cannot be changed", exception.getMessage());
+    }
+
+    @Test
+    void sendMsg() {
+        assertDoesNotThrow(() -> dealService.sendMessage(1L, Theme.SEND_SES));
     }
 
     @Test
@@ -65,8 +118,6 @@ class DealServiceImplTest {
         Exception exception = assertThrows(NotFoundException.class, () -> dealService.approveLoanOffer(loanOffer));
         assertEquals("Application 10 not found", exception.getMessage());
     }
-
-
     @Test
     void createCreditForApplicationWhenNoOffers() {
         Application app = Instancio.create(Application.class);
@@ -142,4 +193,6 @@ class DealServiceImplTest {
         Mockito.when(clientService.existsClientByEmail(request.getEmail())).thenReturn(true);
         assertThrows(UniqueConstraintViolationException.class, () -> dealService.createLoanOffers(request));
     }
+
+
 }

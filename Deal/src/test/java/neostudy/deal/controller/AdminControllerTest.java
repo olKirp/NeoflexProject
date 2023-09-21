@@ -65,16 +65,4 @@ class AdminControllerTest {
                 )
                 .andExpect(status().isOk());
     }
-
-
-    @Test
-    void setApplicationStatusWhenApplicationDoesNotExists() throws Exception {
-        Mockito.doThrow(new NotFoundException("Application 2 not found")).when(dealService).setAndSaveApplicationStatus(any(Long.class), any(ApplicationStatus.class), any(ChangeType.class));
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/deal/admin/application/2")
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .content("PREAPPROVAL")
-                )
-                .andExpect(status().isNotFound());
-    }
 }

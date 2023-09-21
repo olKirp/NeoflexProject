@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,7 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional
 public class DealServiceImpl implements DealService {
-    
+
     private final FinishRegistrationService finishRegistrationService;
 
     private final ApplicationService applicationService;
@@ -101,7 +100,6 @@ public class DealServiceImpl implements DealService {
         applicationService.setLoanOfferToApplication(application, appliedOffer);
         applicationService.saveApplication(application);
     }
-
 
     public void createCreditForApplication(@NonNull FinishRegistrationRequestDTO registrationRequest, Long applicationId) {
         Application application = applicationService.findApplicationById(applicationId).orElseThrow(() -> new NotFoundException("Application " + applicationId + " not found"));
