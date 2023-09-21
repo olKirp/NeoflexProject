@@ -163,6 +163,16 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.10</version>
+                <configuration>
+                    <excludes>
+                        <exclude>neostudy/deal/dto/*</exclude>
+                        <exclude>neostudy/deal/configuration/*</exclude>
+                        <exclude>neostudy/deal/entity/*.*</exclude>
+                        <exclude>neostudy/deal/aspects/*.*</exclude>
+                        <exclude>neostudy/deal/feignclient/*</exclude>
+                        <exclude>neostudy/deal/DealApplication.java</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

@@ -1,5 +1,6 @@
 package neostudy.deal.service;
 
+import lombok.NonNull;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
 import neostudy.deal.dto.LoanApplicationRequestDTO;
 import neostudy.deal.entity.Client;
@@ -7,12 +8,11 @@ import neostudy.deal.entity.Client;
 import java.util.Optional;
 
 public interface ClientService {
+    void saveClient(@NonNull Client client);
 
-    Client saveClient(Client client);
+    Client createClientForLoanRequest(@NonNull LoanApplicationRequestDTO loanRequest);
 
-    Client createClientForLoanRequest(LoanApplicationRequestDTO loanRequest);
-
-    Client mapFinishRegistrationRequestToClient(Client client, FinishRegistrationRequestDTO registrationRequest);
+    void mapFinishRegistrationRequestToClient(@NonNull Client client, @NonNull FinishRegistrationRequestDTO registrationRequest);
 
     Optional<Client> findClientByPassportSeriesAndPassportNumber(String passportSeries, String passportNumber);
 

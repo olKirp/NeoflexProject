@@ -51,6 +51,17 @@ class PrescoringServiceImplTest {
     }
 
     @Test
+    void givenCorrectRequest() {
+        assertDoesNotThrow(() -> prescoringService.validateLoanRequest(request));
+        assertDoesNotThrow(() -> prescoringService.validateOffer(offer));
+    }
+
+    @Test
+    void givenNull() {
+        assertThrows(IllegalArgumentException.class, () -> prescoringService.validateLoanRequest(null));
+        assertThrows(IllegalArgumentException.class, () -> prescoringService.validateOffer(null));
+    }
+    @Test
     void givenIncorrectAmountInRequest_ThenThrowException() {
         String correctMsg = "Requested amount less than " + minAmount + " or bigger than " + maxAmount;
 

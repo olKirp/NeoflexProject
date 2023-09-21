@@ -31,7 +31,6 @@ class DocumentsGeneratorServiceImplTest {
         documentsGenerator.setPathToDocuments(path);
 
         applicationDTO.setId(1L);
-        System.out.println(applicationDTO);
     }
 
     @Test

@@ -1,6 +1,5 @@
 package neostudy.deal.controller;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
@@ -22,9 +21,7 @@ public class DealController implements DealControllerApi {
 
     @Override
     public ResponseEntity<List<LoanOfferDTO>> createLoanOffers(@Valid @RequestBody LoanApplicationRequestDTO loanRequest) {
-        System.out.println("Hello");
         List<LoanOfferDTO> offers = dealService.createLoanOffers(loanRequest);
-        System.out.println("Offers " + offers);
         return ResponseEntity.ok(offers);
     }
 

@@ -56,4 +56,11 @@ class ApplicationServiceImplTest {
     void applyLoanOffer() {
         assertDoesNotThrow(() -> applicationService.applyLoanOffer(offer));
     }
+
+
+    @Test
+    void givenNull() {
+        assertThrows(IllegalArgumentException.class, () -> applicationService.applyLoanOffer(null));
+        assertThrows(IllegalArgumentException.class, () -> applicationService.createLoanOffers(null));
+    }
 }

@@ -39,6 +39,13 @@ public class DealExceptionHandler {
                 .body("Credit conveyor unavailable");
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> FeignException(IllegalArgumentException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(e.getMessage());
+    }
+
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<String> ConstraintViolationException(ConstraintViolationException exception) {
         return ResponseEntity

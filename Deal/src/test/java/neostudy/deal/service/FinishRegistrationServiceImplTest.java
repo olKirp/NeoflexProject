@@ -27,7 +27,7 @@ class FinishRegistrationServiceImplTest {
         Client client = Instancio.create(Client.class);
         Application application = Instancio.create(Application.class);
 
-        ScoringDataDTO res = finishRegistrationService.mapToScoringData(request, client, application);
+        ScoringDataDTO res = finishRegistrationService.mapDTOsToScoringData(request, client, application);
 
         assertEquals(application.getAppliedOffer().getRequestedAmount(), res.getAmount());
         assertEquals(application.getAppliedOffer().getTerm(), res.getTerm());
@@ -44,4 +44,10 @@ class FinishRegistrationServiceImplTest {
         assertEquals(request.getDependentAmount(), res.getDependentAmount());
         assertEquals(request.getAccount(), res.getAccount());
     }
+
+    @Test
+    void invokeMethodsWithNull() {
+        assertThrows(IllegalArgumentException.class, () -> finishRegistrationService.mapDTOsToScoringData(null, null,null));
+    }
+
 }

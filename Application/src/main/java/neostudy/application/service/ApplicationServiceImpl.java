@@ -1,5 +1,6 @@
 package neostudy.application.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import neostudy.application.dto.LoanApplicationRequestDTO;
 import neostudy.application.dto.LoanOfferDTO;
@@ -17,13 +18,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final PrescoringService prescoringService;
 
-    public ResponseEntity<List<LoanOfferDTO>> createLoanOffers(LoanApplicationRequestDTO loanRequest) {
+    public ResponseEntity<List<LoanOfferDTO>> createLoanOffers(@NonNull LoanApplicationRequestDTO loanRequest) {
         prescoringService.validateLoanRequest(loanRequest);
-        System.out.println("Return : " + apiClient.createLoanOffers(loanRequest));
         return apiClient.createLoanOffers(loanRequest);
     }
 
-    public ResponseEntity<String> applyLoanOffer(LoanOfferDTO appliedOffer) {
+    public ResponseEntity<String> applyLoanOffer(@NonNull LoanOfferDTO appliedOffer) {
         prescoringService.validateOffer(appliedOffer);
         return apiClient.saveLoanOffer(appliedOffer);
     }

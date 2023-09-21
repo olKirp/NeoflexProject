@@ -20,9 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class DealServiceImplTest {
-
     private static DealServiceImpl dealService;
-    
     private static final Application application = Instancio.create(Application.class);
     private static final LoanApplicationRequestDTO request = Instancio.create(LoanApplicationRequestDTO.class);
 
@@ -97,6 +95,15 @@ class DealServiceImplTest {
     void setApplicationStatus() {
         application.setStatus(ApplicationStatus.PREAPPROVAL);
         assertDoesNotThrow(() -> dealService.setAndSaveApplicationStatus(application.getId(), ApplicationStatus.DOCUMENT_SIGNED, ChangeType.MANUAL));
+    }
+
+    @Test
+    void invokeMethodsWithNull() {
+        assertThrows(IllegalArgumentException.class, () -> dealService.sendMessage(1L, null));
+        assertThrows(IllegalArgumentException.class, () -> dealService.createLoanOffers(null));
+        assertThrows(IllegalArgumentException.class, () -> dealService.setAndSaveApplicationStatus(1L, null, null));
+        assertThrows(IllegalArgumentException.class, () -> dealService.createCreditForApplication(null, 1L));
+        assertThrows(IllegalArgumentException.class, () -> dealService.approveLoanOffer(null));
     }
 
     @Test

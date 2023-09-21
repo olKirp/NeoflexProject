@@ -1,6 +1,7 @@
 package neostudy.deal.service;
 
 import feign.FeignException;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.*;
 import neostudy.deal.dto.ApplicationStatus;
@@ -39,13 +40,13 @@ public class DealServiceImpl implements DealService {
 
     private final KafkaMessageSenderService msgSender;
 
-    public void sendMessage(Long applicationId, Theme theme) {
+    public void sendMessage(Long applicationId, @NonNull Theme theme) {
         Application application = applicationService.findApplicationById(applicationId).orElseThrow(() -> new NotFoundException("Application " + applicationId + " not found"));
         msgSender.sendMessage(application.getClient().getEmail(), theme, applicationId);
     }
 
-    public List<LoanOfferDTO> createLoanOffers(LoanApplicationRequestDTO loanRequest) {
-        checkLoanOffer(loanRequest);
+    public List<LoanOfferDTO> createLoanOffers(@NonNull LoanApplicationRequestDTO loanRequest) {
+        checkLoanRequest(loanRequest);
 
         Application application = applicationService.getApplicationForClient(clientService.createClientForLoanRequest(loanRequest));
         List<LoanOfferDTO> offers = getLoanOffersFromConveyor(loanRequest);
@@ -54,7 +55,7 @@ public class DealServiceImpl implements DealService {
         return offers;
     }
 
-    private void checkLoanOffer(LoanApplicationRequestDTO loanRequest) {
+    private void checkLoanRequest(LoanApplicationRequestDTO loanRequest) {
         Optional<Client> optionalClient =
                 clientService.findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber());
 
@@ -89,7 +90,7 @@ public class DealServiceImpl implements DealService {
         offers.forEach(offer -> offer.setApplicationId(id));
     }
 
-    public void approveLoanOffer(LoanOfferDTO appliedOffer) {
+    public void approveLoanOffer(@NonNull LoanOfferDTO appliedOffer) {
         Application application = applicationService.findApplicationById(appliedOffer.getApplicationId())
                 .orElseThrow(() -> new NotFoundException("Application " + appliedOffer.getApplicationId() + " not found"));
 
@@ -102,7 +103,7 @@ public class DealServiceImpl implements DealService {
     }
 
 
-    public void createCreditForApplication(FinishRegistrationRequestDTO registrationRequest, Long applicationId) {
+    public void createCreditForApplication(@NonNull FinishRegistrationRequestDTO registrationRequest, Long applicationId) {
         Application application = applicationService.findApplicationById(applicationId).orElseThrow(() -> new NotFoundException("Application " + applicationId + " not found"));
 
         if (application.getAppliedOffer() == null) {
@@ -113,7 +114,7 @@ public class DealServiceImpl implements DealService {
 
         addInfoToClient(application.getClient(), registrationRequest);
 
-        Credit credit = creditService.createCreditFromCreditDTO(getCreditFromConveyor(registrationRequest, application));
+        Credit credit = creditService.mapCreditDTOToCredit(getCreditFromConveyor(registrationRequest, application));
 
         application.setCredit(credit);
         applicationService.setApplicationStatus(application, ApplicationStatus.CC_APPROVED, ChangeType.AUTOMATIC);
@@ -143,10 +144,10 @@ public class DealServiceImpl implements DealService {
     }
 
     private ScoringDataDTO mapToScoringData(FinishRegistrationRequestDTO request, Application application) {
-        return finishRegistrationService.mapToScoringData(request, application.getClient(), application);
+        return finishRegistrationService.mapDTOsToScoringData(request, application.getClient(), application);
     }
 
-    public void setAndSaveApplicationStatus(Long appId, ApplicationStatus status, ChangeType type) {
+    public void setAndSaveApplicationStatus(Long appId, @NonNull ApplicationStatus status, @NonNull ChangeType type) {
         Application application = applicationService.findApplicationById(appId).orElseThrow(() -> new NotFoundException("Application " + appId + " not found"));
         applicationService.setApplicationStatus(application, status, type);
         applicationService.saveApplication(application);

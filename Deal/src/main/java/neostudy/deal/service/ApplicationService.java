@@ -1,5 +1,6 @@
 package neostudy.deal.service;
 
+import lombok.NonNull;
 import neostudy.deal.dto.LoanOfferDTO;
 import neostudy.deal.dto.ApplicationStatus;
 import neostudy.deal.dto.ChangeType;
@@ -13,15 +14,15 @@ public interface ApplicationService {
 
     Optional<Application> findApplicationById(Long applicationId);
 
-    void setApplicationStatus(Application application, ApplicationStatus status, ChangeType type);
+    void setApplicationStatus(@NonNull Application application, @NonNull ApplicationStatus status, @NonNull ChangeType type);
 
-    Application getApplicationForClient(Client client);
+    Application getApplicationForClient(@NonNull Client client);
 
-    Application saveApplication(Application application);
+    Application saveApplication(@NonNull Application application);
 
-    void setLoanOfferToApplication(Application application, LoanOfferDTO appliedOffer);
+    void setLoanOfferToApplication(@NonNull Application application, @NonNull LoanOfferDTO appliedOffer);
 
-    boolean isApplicationApprovedByConveyor(Application application);
+    boolean isApplicationApprovedByConveyor(@NonNull Application application);
 
     List<Application> getApplications();
 }

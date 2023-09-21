@@ -138,4 +138,11 @@ class ClientServiceImplTest {
         Mockito.when(clientRepository.existsClientByEmploymentINN(client.getEmployment().getINN())).thenReturn(true);
         assertThrows(UniqueConstraintViolationException.class, () -> clientService.mapFinishRegistrationRequestToClient(client, request));
     }
+
+    @Test
+    void invokeMethodsWithNull() {
+        assertThrows(IllegalArgumentException.class, () -> clientService.saveClient(null));
+        assertThrows(IllegalArgumentException.class, () -> clientService.createClientForLoanRequest(null));
+        assertThrows(IllegalArgumentException.class, () -> clientService.mapFinishRegistrationRequestToClient(null, null));
+    }
 }

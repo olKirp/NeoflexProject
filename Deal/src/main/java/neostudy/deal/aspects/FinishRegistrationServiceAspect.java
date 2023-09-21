@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FinishRegistrationServiceAspect {
 
-    @Around("execution(* neostudy.deal.service.FinishRegistrationServiceImpl.mapToScoringData(..))")
+    @Around("execution(* neostudy.deal.service.FinishRegistrationServiceImpl.mapDTOsToScoringData(..))")
     public Object mapToScoringData(ProceedingJoinPoint point) throws Throwable {
         log.info("Creating scoring data DTO for application " + ((Application)point.getArgs()[2]).getId());
         Object o = point.proceed();

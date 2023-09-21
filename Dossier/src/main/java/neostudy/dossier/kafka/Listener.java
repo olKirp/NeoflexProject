@@ -62,10 +62,10 @@ public class Listener {
             log.error("Mail send exception: " + exception.getMessage());
             apiClient.setApplicationStatus(message.getApplicationId(), String.valueOf(ApplicationStatus.CC_APPROVED));
         } catch (FeignException exception) {
-
             log.error("Feign exception: " + exception.getMessage());
-        }
-        catch (DealMicroserviceException ignored) {
+        } catch (IllegalArgumentException exception) {
+            log.error("Illegal argument exception: " + exception.getMessage());
+        } catch (DealMicroserviceException ignored) {
         }
     }
 

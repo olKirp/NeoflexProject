@@ -1,5 +1,6 @@
 package neostudy.deal.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.LoanOfferDTO;
 import neostudy.deal.dto.ApplicationStatus;
@@ -28,7 +29,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final List<ApplicationStatus> approvedByConveyorStatuses = List.of(ApplicationStatus.PREAPPROVAL, ApplicationStatus.APPROVED, ApplicationStatus.CLIENT_DENIED, ApplicationStatus.CC_DENIED);
 
-    public void setApplicationStatus(Application application, ApplicationStatus status, ChangeType type) {
+    public void setApplicationStatus(@NonNull Application application, @NonNull ApplicationStatus status, @NonNull ChangeType type) {
         application.setStatus(status);
         StatusHistory statusHistory = StatusHistory.builder()
                 .status(status)
@@ -38,12 +39,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setStatusHistory(statusHistory);
     }
 
-    public void setLoanOfferToApplication(Application application, LoanOfferDTO appliedOffer) {
+    public void setLoanOfferToApplication(@NonNull Application application, @NonNull LoanOfferDTO appliedOffer) {
         application.setAppliedOffer(appliedOffer);
         setApplicationStatus(application, APPROVED, ChangeType.AUTOMATIC);
     }
 
-    public Application saveApplication(Application application) {
+    public Application saveApplication(@NonNull Application application) {
         return applicationRepository.save(application);
     }
 
@@ -51,7 +52,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationRepository.findById(applicationId);
     }
 
-    public boolean isApplicationApprovedByConveyor(Application application) {
+    public boolean isApplicationApprovedByConveyor(@NonNull Application application) {
         return !approvedByConveyorStatuses.contains(application.getStatus());
     }
 
@@ -60,7 +61,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationRepository.findAll();
     }
 
-    public Application getApplicationForClient(Client client) {
+    public Application getApplicationForClient(@NonNull Client client) {
         return applicationRepository.findApplicationByClientId(client.getId()).
                 or(() -> Optional.ofNullable(createApplication(client))).get();
     }
@@ -79,4 +80,5 @@ public class ApplicationServiceImpl implements ApplicationService {
         int randomInt = ThreadLocalRandom.current().nextInt(1000, 10000);
         return String.valueOf(randomInt);
     }
+
 }

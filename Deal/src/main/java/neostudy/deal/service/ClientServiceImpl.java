@@ -1,5 +1,6 @@
 package neostudy.deal.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
 import neostudy.deal.dto.LoanApplicationRequestDTO;
@@ -24,8 +25,8 @@ public class ClientServiceImpl implements ClientService {
 
     private final ModelMapper modelMapper;
 
-    public Client saveClient(Client client) {
-        return clientRepository.save(client);
+    public void saveClient(@NonNull Client client) {
+        clientRepository.save(client);
     }
 
     private Client updateClient(LoanApplicationRequestDTO loanRequest, Client existedClient) {
@@ -37,17 +38,17 @@ public class ClientServiceImpl implements ClientService {
         return clientRepository.findClientByPassportSeriesAndPassportNumber(passportSeries, passportNumber);
     }
 
-    public Client mapFinishRegistrationRequestToClient(Client client, FinishRegistrationRequestDTO registrationRequest) {
+    public void mapFinishRegistrationRequestToClient(@NonNull Client client, @NonNull FinishRegistrationRequestDTO registrationRequest) {
         if (clientRepository.existsClientByAccount(registrationRequest.getAccount())) {
             throw new UniqueConstraintViolationException("Client with account " + registrationRequest.getAccount() + " already exists");
         } else if (clientRepository.existsClientByEmploymentINN(registrationRequest.getEmploymentDTO().getEmployerINN())) {
             throw new UniqueConstraintViolationException("Client with INN " + registrationRequest.getEmploymentDTO().getEmployerINN() + " already exists");
         }
 
-        return clientMapper.updateClientFromFinishRegistrationRequest(registrationRequest, client);
+        clientMapper.updateClientFromFinishRegistrationRequest(registrationRequest, client);
     }
 
-    public Client createClientForLoanRequest(LoanApplicationRequestDTO loanRequest) {
+    public Client createClientForLoanRequest(@NonNull LoanApplicationRequestDTO loanRequest) {
         return findClientByPassportSeriesAndPassportNumber(loanRequest.getPassportSeries(), loanRequest.getPassportNumber())
         .map(client -> updateClient(loanRequest, client))
                 .orElse(modelMapper.map(loanRequest, Client.class));

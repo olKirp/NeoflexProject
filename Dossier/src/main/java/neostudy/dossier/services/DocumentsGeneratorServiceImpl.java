@@ -1,6 +1,7 @@
 package neostudy.dossier.services;
 
 import lombok.Data;
+import lombok.NonNull;
 import neostudy.dossier.dto.ApplicationDTO;
 import neostudy.dossier.dto.ClientDTO;
 import neostudy.dossier.dto.CreditDTO;
@@ -25,7 +26,7 @@ public class DocumentsGeneratorServiceImpl implements DocumentsGeneratorService 
     private String pathToDocuments;
 
     @Override
-    public String generatePaymentScheduleDocument(ApplicationDTO application) throws IOException {
+    public String generatePaymentScheduleDocument(@NonNull ApplicationDTO application) throws IOException {
         List<String> lines = new ArrayList<>();
 
         lines.add("Payment schedule for loan application " + application.getId() + ":");
@@ -43,7 +44,7 @@ public class DocumentsGeneratorServiceImpl implements DocumentsGeneratorService 
     }
 
     @Override
-    public String generateCreditDocument(ApplicationDTO application) throws IOException {
+    public String generateCreditDocument(@NonNull ApplicationDTO application) throws IOException {
         List<String> lines = new ArrayList<>();
         lines.add("Credit information for application " + application.getId() + ":");
 
@@ -62,7 +63,7 @@ public class DocumentsGeneratorServiceImpl implements DocumentsGeneratorService 
     }
 
     @Override
-    public String generateClientDataDocument(ApplicationDTO application) throws IOException {
+    public String generateClientDataDocument(@NonNull ApplicationDTO application) throws IOException {
         List<String> lines = new ArrayList<>();
         lines.add("Client information for application " + application.getId() + ":");
 
@@ -82,7 +83,7 @@ public class DocumentsGeneratorServiceImpl implements DocumentsGeneratorService 
     }
 
     @Override
-    public List<String> generateAllDocuments(ApplicationDTO application) throws IOException {
+    public List<String> generateAllDocuments(@NonNull ApplicationDTO application) throws IOException {
         return Arrays.asList(generateClientDataDocument(application),
                 generateCreditDocument(application),
                 generatePaymentScheduleDocument(application));

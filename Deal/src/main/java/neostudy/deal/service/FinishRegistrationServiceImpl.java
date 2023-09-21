@@ -1,5 +1,6 @@
 package neostudy.deal.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.FinishRegistrationRequestDTO;
 import neostudy.deal.dto.ScoringDataDTO;
@@ -14,7 +15,7 @@ public class FinishRegistrationServiceImpl implements FinishRegistrationService 
 
     private final ScoringDataDTOMapper scoringDataDTOMapper;
 
-    public ScoringDataDTO mapToScoringData(FinishRegistrationRequestDTO request, Client client, Application application) {
+    public ScoringDataDTO mapDTOsToScoringData(@NonNull FinishRegistrationRequestDTO request, @NonNull Client client, @NonNull Application application) {
         return scoringDataDTOMapper.from(request, client, application);
     }
 }

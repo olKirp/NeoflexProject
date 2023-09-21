@@ -93,6 +93,14 @@ class ApplicationServiceImplTest {
     }
 
     @Test
+    void invokeMethodsWithNull() {
+        assertThrows(IllegalArgumentException.class, () -> applicationService.setApplicationStatus(null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> applicationService.saveApplication(null));
+        assertThrows(IllegalArgumentException.class, () -> applicationService.setLoanOfferToApplication(null, null));
+        assertThrows(IllegalArgumentException.class, () -> applicationService.getApplicationForClient (null));
+        assertThrows(IllegalArgumentException.class, () -> applicationService.isApplicationApprovedByConveyor(null));
+    }
+    @Test
     void isApplicationApprovedByConveyor() {
         application.setStatus(ApplicationStatus.PREAPPROVAL);
         assertFalse(applicationService.isApplicationApprovedByConveyor(application));

@@ -1,5 +1,6 @@
 package neostudy.deal.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import neostudy.deal.dto.CreditDTO;
 import neostudy.deal.dto.CreditStatus;
@@ -18,13 +19,13 @@ public class CreditServiceImpl implements CreditService{
 
     private final ModelMapper modelMapper;
 
-    public Credit createCreditFromCreditDTO(CreditDTO creditDTO) {
+    public Credit mapCreditDTOToCredit(@NonNull CreditDTO creditDTO) {
         Credit credit = modelMapper.map(creditDTO, Credit.class);
         credit.setCreditStatus(CreditStatus.CALCULATED);
         return credit;
     }
 
-    public Credit saveCredit(Credit credit) {
+    public Credit saveCredit(@NonNull Credit credit) {
         return creditRepository.save(credit);
     }
 }

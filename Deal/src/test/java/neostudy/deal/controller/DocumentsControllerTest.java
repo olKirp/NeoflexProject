@@ -24,8 +24,32 @@ class DocumentsControllerTest {
     @MockBean
     DocumentsService documentsService;
 
+
     @Test
     void sendDocuments() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/1/send"))
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    void signDocumentsRequest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/1/sign")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("1234"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void signDocuments() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/1/code")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("1234"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void sendDocumentsWithErrors() throws Exception {
         Mockito.doThrow(new IncorrectApplicationStatusException("IncorrectApplicationStatusException")).when(documentsService).sendDocuments(1L);
         mockMvc.perform(MockMvcRequestBuilders.post("/1/send"))
                 .andExpect(status().isConflict());
@@ -37,7 +61,7 @@ class DocumentsControllerTest {
     }
 
     @Test
-    void signDocumentsRequest() throws Exception {
+    void signDocumentsRequestWithErrors() throws Exception {
         Mockito.doThrow(new IncorrectApplicationStatusException("IncorrectApplicationStatusException")).when(documentsService).signDocumentsRequest(1L);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/1/sign")
@@ -53,7 +77,7 @@ class DocumentsControllerTest {
     }
 
     @Test
-    void signDocuments() throws Exception {
+    void signDocumentsWithErrors() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/1/code")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content("12fv"))

@@ -124,6 +124,14 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.10</version>
+                <configuration>
+                    <excludes>
+                        <exclude>neostudy/dossier/exceptions/*</exclude>
+                        <exclude>neostudy/dossier/aspects/*.*</exclude>
+                        <exclude>neostudy/dossier/feignclient/*</exclude>
+                        <exclude>neostudy/dossier/DossierApplication.java</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

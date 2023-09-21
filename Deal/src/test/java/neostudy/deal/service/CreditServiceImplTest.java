@@ -44,7 +44,7 @@ class CreditServiceImplTest {
         mapper.map(creditDTO.getPaymentSchedule(), element);
 
 
-        Credit credit = creditService.createCreditFromCreditDTO(creditDTO);
+        Credit credit = creditService.mapCreditDTOToCredit(creditDTO);
 
         assertEquals(creditDTO.getAmount(), credit.getAmount());
         assertEquals(creditDTO.getTerm(), credit.getTerm());
@@ -60,5 +60,11 @@ class CreditServiceImplTest {
     @Test
     void saveCredit() {
         assertEquals(credit, creditService.saveCredit(credit));
+    }
+
+    @Test
+    void invokeMethodsWithNull() {
+        assertThrows(IllegalArgumentException.class, () -> creditService.saveCredit(null));
+        assertThrows(IllegalArgumentException.class, () -> creditService.mapCreditDTOToCredit(null));
     }
 }
