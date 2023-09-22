@@ -18,7 +18,6 @@ import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Log4j2
@@ -65,7 +64,8 @@ public class Listener {
             log.error("Feign exception: " + exception.getMessage());
         } catch (IllegalArgumentException exception) {
             log.error("Illegal argument exception: " + exception.getMessage());
-        } catch (DealMicroserviceException ignored) {
+        } catch (DealMicroserviceException exception) {
+            log.error("Deal microservice exception: " + exception.getMessage());
         }
     }
 
@@ -74,7 +74,8 @@ public class Listener {
         try {
             String body = mailCreatorService.createMailBody(message.getTheme(), message.getApplicationId());
             mailSender.sendEmail(message.getAddress(), "SES-code", body);
-        } catch (DealMicroserviceException ignored) {
+        } catch (DealMicroserviceException exception) {
+            log.error("Deal microservice exception: " + exception.getMessage());
         }
     }
 
