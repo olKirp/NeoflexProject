@@ -65,9 +65,10 @@ class DocumentsGeneratorServiceImplTest {
     @AfterAll
     public static void deleteFiles() {
         try {
-            Files.deleteIfExists(Path.of("./testDocuments/payment_schedule_1"));
-            Files.deleteIfExists(Path.of("./testDocuments/credit_info_1"));
-            Files.deleteIfExists(Path.of("./testDocuments/client_info_1"));
+            Files.deleteIfExists(Path.of("./testDocuments/payment_schedule_1.txt"));
+            Files.deleteIfExists(Path.of("./testDocuments/credit_info_1.txt"));
+            Files.deleteIfExists(Path.of("./testDocuments/client_info_1.txt"));
+            Files.deleteIfExists(Path.of("./testDocuments"));
         } catch (IOException e) {
             e.printStackTrace();
         }

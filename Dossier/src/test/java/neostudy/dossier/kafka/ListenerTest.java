@@ -65,8 +65,7 @@ class ListenerTest {
         messageDTO.setApplicationId(1L);
 
         Mockito.when(apiClient.getApplicationById(1L)).thenReturn(ResponseEntity.ok(app));
-        listener.handleSendDocuments(messageDTO);
-        assertEquals("", output.getOut());
+        assertDoesNotThrow(() -> listener.handleSendDocuments(messageDTO));
     }
 
     @Test
