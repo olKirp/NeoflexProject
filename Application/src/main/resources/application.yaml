@@ -1,0 +1,14 @@
+server:
+  port: 8082
+spring:
+    cloud:
+        openfeign:
+            client:
+                config:
+                    deal:
+                        url: http://deal-server:8081/
+constants:
+    minAmount: 10000.00
+    maxAmount: 7000000.00
+    minTerm: 6
+    maxTerm: 60

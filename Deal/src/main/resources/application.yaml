@@ -1,0 +1,42 @@
+server:
+    port: 8081
+logging:
+    level:
+        org:
+            springframework:
+                transaction:
+                    interceptor: TRACE
+spring:
+    liquibase:
+        change-log: classpath:liquibase/changelog_v1.yaml
+        enabled: true
+    jpa:
+        open-in-view: true
+        show-sql: false
+        hibernate:
+           ddl-auto: validate
+           format_sql: true
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+    datasource:
+        url: jdbc:postgresql://deal_db:5432/deal_db
+        username: user
+        password: pass
+    cloud:
+        openfeign:
+            client:
+                config:
+                    conveyor:
+                        url: http://conveyor-server:8080/
+    kafka:
+        bootstrap-servers: kafka:29092
+        producer:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+            properties:
+                spring:
+                    json:
+                        add:
+                            type:
+                                headers: false

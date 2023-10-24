@@ -1,0 +1,350 @@
+databaseChangeLog:
+- changeSet:
+    id: 1692463822345-1
+    author: olkir
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: creation_date
+            type: date
+        - column:
+            name: sign_date
+            type: date
+        - column:
+            constraints:
+              nullable: false
+            name: client_id
+            type: BIGINT
+        - column:
+            name: credit_id
+            type: BIGINT
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: application_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: ses_code
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: status
+            type: VARCHAR(255)
+        - column:
+            name: applied_offer
+            type: JSONB
+        - column:
+            name: status_history
+            type: JSONB
+        tableName: application
+- changeSet:
+    id: 1692463822345-2
+    author: olkir
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: birth_date
+            type: date
+        - column:
+            name: dependent_amount
+            type: INTEGER
+        - column:
+            name: employment_id
+            type: BIGINT
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: client_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: passport_id
+            type: BIGINT
+        - column:
+            name: account
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: email
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: first_name
+            type: VARCHAR(255)
+        - column:
+            name: gender
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: last_name
+            type: VARCHAR(255)
+        - column:
+            name: marital_status
+            type: VARCHAR(255)
+        - column:
+            name: middle_name
+            type: VARCHAR(255)
+        tableName: client
+- changeSet:
+    id: 1692463822345-3
+    author: olkir
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: amount
+            type: numeric(38, 2)
+        - column:
+            constraints:
+              nullable: false
+            name: insurance_enabled
+            type: BOOLEAN
+        - column:
+            constraints:
+              nullable: false
+            name: monthly_payment
+            type: numeric(38, 2)
+        - column:
+            constraints:
+              nullable: false
+            name: psk
+            type: numeric(38, 2)
+        - column:
+            constraints:
+              nullable: false
+            name: rate
+            type: numeric(38, 2)
+        - column:
+            constraints:
+              nullable: false
+            name: salary_client
+            type: BOOLEAN
+        - column:
+            constraints:
+              nullable: false
+            name: term
+            type: INTEGER
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: credit_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: credit_status
+            type: VARCHAR(255)
+        - column:
+            constraints:
+              nullable: false
+            name: payment_schedule
+            type: JSONB
+        tableName: credit
+- changeSet:
+    id: 1692463822345-4
+    author: olkir
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: salary
+            type: numeric(38, 2)
+        - column:
+            name: work_experience_current
+            type: INTEGER
+        - column:
+            name: work_experience_total
+            type: INTEGER
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: employment_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: employer_inn
+            type: VARCHAR(12)
+        - column:
+            name: position
+            type: VARCHAR(255)
+        - column:
+            name: status
+            type: VARCHAR(255)
+        tableName: employment
+- changeSet:
+    id: 1692463822345-5
+    author: olkir
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: issue_date
+            type: date
+        - column:
+            constraints:
+              nullable: false
+            name: series
+            type: VARCHAR(4)
+        - column:
+            constraints:
+              nullable: false
+            name: number
+            type: VARCHAR(6)
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: passport_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: issue_branch
+            type: VARCHAR(255)
+        tableName: passport
+- changeSet:
+    id: 1692463822345-6
+    author: olkir
+    changes:
+    - addUniqueConstraint:
+        columnNames: client_id
+        constraintName: application_client_id_key
+        tableName: application
+- changeSet:
+    id: 1692463822345-7
+    author: olkir
+    changes:
+    - addUniqueConstraint:
+        columnNames: credit_id
+        constraintName: application_credit_id_key
+        tableName: application
+- changeSet:
+    id: 1692463822345-8
+    author: olkir
+    changes:
+    - addUniqueConstraint:
+        columnNames: employment_id
+        constraintName: client_employment_id_key
+        tableName: client
+- changeSet:
+    id: 1692463822345-9
+    author: olkir
+    changes:
+    - addUniqueConstraint:
+        columnNames: passport_id
+        constraintName: client_passport_id_key
+        tableName: client
+- changeSet:
+    id: 1692463822345-10
+    author: olkir
+    changes:
+    - addUniqueConstraint:
+        columnNames: account
+        constraintName: unique_account
+        tableName: client
+- changeSet:
+    id: 1692463822345-11
+    author: olkir
+    changes:
+    - addUniqueConstraint:
+        columnNames: employer_inn
+        constraintName: unique_inn
+        tableName: employment
+- changeSet:
+    id: 1692463822345-12
+    author: olkir
+    changes:
+    - addUniqueConstraint:
+        columnNames: series, number
+        constraintName: unique_passport_series_and_number
+        tableName: passport
+- changeSet:
+    id: 1692463822345-13
+    author: olkir
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: client_id
+        baseTableName: application
+        constraintName: fk_application_client
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: client
+        validate: true
+- changeSet:
+    id: 1692463822345-14
+    author: olkir
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: credit_id
+        baseTableName: application
+        constraintName: fk_application_credit
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: credit
+        validate: true
+- changeSet:
+    id: 1692463822345-15
+    author: olkir
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: employment_id
+        baseTableName: client
+        constraintName: fk_client_employment
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: employment
+        validate: true
+- changeSet:
+    id: 1692463822345-16
+    author: olkir
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: passport_id
+        baseTableName: client
+        constraintName: fk_client_passport
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: passport
+        validate: true
+- changeSet:
+      id: 1692463822345-17
+      author: olkir
+      changes:
+          - addUniqueConstraint:
+                columnNames: email
+                constraintName: unique_email
+                tableName: client
